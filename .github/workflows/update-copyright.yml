@@ -1,0 +1,67 @@
+name: Update Copyright Year
+
+on:
+  schedule:
+    - cron: '0 0 1 1 *'
+  workflow_dispatch:
+
+jobs:
+  update-year:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get current year
+        id: date
+        run: echo "year=$(date +'%Y')" >> $GITHUB_OUTPUT
+
+      - name: Update LICENSE year
+        run: |
+          CURRENT_YEAR=$(date +'%Y')
+          FILE="LICENSE"
+          if grep -q "Copyright (c) $CURRENT_YEAR" "$FILE"; then
+            echo "License already up to date."
+          else
+            OLD_RANGE=$(grep -o "Copyright (c) [0-9]\{4\}\(-[0-9]\{4\}\)\?" "$FILE" | sed 's/Copyright (c) //')
+            NEW_RANGE="$OLD_RANGE-$CURRENT_YEAR"
+            if [[ "$OLD_RANGE" == *-* ]]; then
+              sed -i "s/Copyright (c) $OLD_RANGE/Copyright (c) $NEW_RANGE/" "$FILE"
+            else
+              sed -i "s/Copyright (c) $OLD_RANGE/Copyright (c) $OLD_RANGE-$CURRENT_YEAR/" "$FILE"
+            fi
+            echo "Updated LICENSE: Copyright (c) $NEW_RANGE"
+          fi
+
+      - name: Update README.md year
+        run: |
+          CURRENT_YEAR=$(date +'%Y')
+          FILE="README.md"
+          if [ -f "$FILE" ] && grep -q "Copyright © $CURRENT_YEAR" "$FILE"; then
+            echo "README already up to date."
+          elif [ -f "$FILE" ]; then
+            OLD_RANGE=$(grep -o "Copyright © [0-9]\{4\}\(-[0-9]\{4\}\)\?" "$FILE" | sed 's/Copyright © //')
+            NEW_RANGE="$OLD_RANGE-$CURRENT_YEAR"
+            if [[ "$OLD_RANGE" == *-* ]]; then
+              sed -i "s/Copyright © $OLD_RANGE/Copyright © $NEW_RANGE/" "$FILE"
+            else
+              sed -i "s/Copyright © $OLD_RANGE/Copyright © $OLD_RANGE-$CURRENT_YEAR/" "$FILE"
+            fi
+            echo "Updated README: Copyright © $NEW_RANGE"
+          else
+            echo "README not found or no copyright line."
+          fi
+
+      - name: Commit and push if changed
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add LICENSE README.md
+          git diff --quiet && git diff --staged --quiet || git commit -m "chore: update copyright year to $(date +'%Y')"
+          git push
