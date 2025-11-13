@@ -6,12 +6,14 @@ import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
   return (
-    <div className="fixed inset-0 flex flex-col items-center justify-center gap-6 select-none bg-background">
-      <h2 className={`${notoSerifTC.className} text-8xl font-bold text-foreground`}>
+    <div className="bg-background fixed inset-0 flex flex-col items-center justify-center gap-6 select-none">
+      <h2
+        className={`${notoSerifTC.className} text-foreground text-8xl font-bold`}
+      >
         404
       </h2>
       <p
-        className={`${notoSerifTC.className} text-center text-base font-bold text-muted-foreground sm:text-lg`}
+        className={`${notoSerifTC.className} text-muted-foreground text-center text-base font-bold sm:text-lg`}
       >
         未知
       </p>
