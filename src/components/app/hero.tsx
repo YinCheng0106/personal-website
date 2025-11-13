@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { useTheme } from "next-themes";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { notoSerifTC } from "@/app/fonts";
 import { Icon } from "@iconify-icon/react";
 
 const slogans = [
+  "Hello!",
   "每一個專案，都是我成長的足跡",
   "寫程式是我的熱情，也是我與世界溝通的方式",
   "在代碼的世界裡，我尋找無限的可能性",
@@ -18,7 +20,21 @@ const slogans = [
   "希望看到這句話的妳，也能天天幸福開心！",
 ];
 
+const slogans_light = [
+  "Hello!",
+  "淺色模式很亮齁",
+  "要瞎了對不對:)",
+  "右上角可以切換深色模式喔！",
+  "每一個專案，都是我成長的足跡",
+  "寫程式是我的熱情，也是我與世界溝通的方式",
+  "休息是為了走更長遠的路",
+  "但我一休息就半天過去了:)",
+  "希望看到這句話的妳，也能天天幸福開心！",
+];
+
 export function Hero() {
+  const { theme } = useTheme();
+
   const [sloganIndex, setSloganIndex] = useState(0);
   const [displayText, setDisplayText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
@@ -29,14 +45,16 @@ export function Hero() {
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        const isInView = entry.isIntersecting || entry.boundingClientRect.bottom > window.innerHeight * 0.3;
+        const isInView =
+          entry.isIntersecting ||
+          entry.boundingClientRect.bottom > window.innerHeight * 0.3;
         setShowArrow(isInView);
       },
       {
         root: null,
         threshold: 0,
         rootMargin: "0px 0px -10px 0px",
-      }
+      },
     );
 
     if (heroRef.current) {
@@ -47,7 +65,8 @@ export function Hero() {
   }, []);
 
   useEffect(() => {
-    const currentSlogan = slogans[sloganIndex];
+    const currentSlogan =
+      theme === "light" ? slogans_light[sloganIndex] : slogans[sloganIndex];
     let timer: NodeJS.Timeout;
 
     if (!isDeleting && displayText !== currentSlogan) {
@@ -71,8 +90,11 @@ export function Hero() {
   }, [displayText, isDeleting, sloganIndex]);
 
   return (
-    <section ref={heroRef} className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4">
-      <div className="mx-auto max-w-4xl space-y-8 text-center mb-16">
+    <section
+      ref={heroRef}
+      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4"
+    >
+      <div className="mx-auto mb-16 max-w-4xl space-y-8 text-center">
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -84,7 +106,9 @@ export function Hero() {
 
         <div className="flex h-20 items-center justify-center">
           <p className="text-muted-foreground font-mono text-xl sm:text-2xl">
-            <span className="text-accent">{displayText}</span>
+            <span className="dark:text-accent text-neutral-400">
+              {displayText}
+            </span>
             <motion.span
               animate={{ opacity: [1, 0] }}
               transition={{ duration: 0.5, repeat: Infinity }}
@@ -106,7 +130,7 @@ export function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="flex flex-col justify-center gap-4 sm:flex-row "
+          className="flex flex-col justify-center gap-4 sm:flex-row"
         >
           <Button size="lg" className="" asChild>
             <Link href="#projects">我的專案</Link>
