@@ -35,12 +35,12 @@ const slogans_light = [
 export function Hero() {
   const { theme } = useTheme();
 
+  const heroRef = useRef<HTMLElement>(null);
+
   const [sloganIndex, setSloganIndex] = useState(0);
   const [displayText, setDisplayText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [showArrow, setShowArrow] = useState(true);
-
-  const heroRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -87,7 +87,7 @@ export function Hero() {
     }
 
     return () => clearTimeout(timer);
-  }, [displayText, isDeleting, sloganIndex]);
+  }, [displayText, isDeleting, sloganIndex, theme]);
 
   return (
     <section
