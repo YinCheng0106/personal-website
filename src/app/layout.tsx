@@ -5,9 +5,9 @@ import {
   playfairDisplay,
 } from "@/app/fonts";
 import type { Metadata } from "next";
-import { ThemeProvider } from "@/component/app/theme-provider";
-import AppHeader from "@/component/app/appHeader";
-import AppFooter from "@/component/app/appFooter";
+import { ThemeProvider } from "@/components/app/theme-provider";
+import AppHeader from "@/components/app/appHeader";
+import AppFooter from "@/components/app/appFooter";
 
 export const metadata: Metadata = {
   title: "YinCheng",
@@ -31,7 +31,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AppHeader />
-          <main className="flex-1 flex flex-col">{children}</main>
+          <main className="flex flex-1 flex-col">{children}</main>
           <AppFooter />
         </ThemeProvider>
       </body>

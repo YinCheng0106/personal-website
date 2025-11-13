@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { playfairDisplay, notoSerifTC } from "@/app/fonts";
-import { ModeToggle } from "@/component/app/themeSwitch";
+import { ModeToggle } from "@/components/app/themeSwitch";
 import { Icon } from "@iconify-icon/react";
 
 const navItems = [
