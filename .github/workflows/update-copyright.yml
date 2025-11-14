@@ -10,58 +10,96 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
+      - name: Verify LICENSE exists
+        run: |
+          if [ ! -f "LICENSE" ]; then
+            echo "LICENSE not found! Creating one..."
+            cat > LICENSE << 'EOF'
+            MIT License
+
+            Copyright (c) $(date +'%Y') YinCheng
+
+            Permission is hereby granted, free of charge, to any person obtaining a copy
+            of this software and associated documentation files (the "Software"), to deal
+            in the Software without restriction, including without limitation the rights
+            to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+            copies of the Software, and to permit persons to whom the Software is
+            furnished to do so, subject to the following conditions:
+
+            The above copyright notice and this permission notice shall be included in all
+            copies or substantial portions of the Software.
+
+            THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+            IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+            FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+            AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+            LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+            OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+            SOFTWARE.
+            EOF
+            git add LICENSE
+            git commit -m "chore: add MIT License"
+            git push
+            echo "Created LICENSE and pushed."
+            exit 0
+          fi
       - name: Get current year
-        id: date
+        id: year
         run: echo "year=$(date +'%Y')" >> $GITHUB_OUTPUT
 
-      - name: Update LICENSE year
+      - name: Update LICENSE
         run: |
-          CURRENT_YEAR=$(date +'%Y')
+          YEAR="${{ steps.year.outputs.year }}"
           FILE="LICENSE"
-          if grep -q "Copyright (c) $CURRENT_YEAR" "$FILE"; then
-            echo "License already up to date."
+
+          if grep -q "Copyright (c) $YEAR" "$FILE"; then
+            echo "LICENSE already up to date."
           else
-            OLD_RANGE=$(grep -o "Copyright (c) [0-9]\{4\}\(-[0-9]\{4\}\)\?" "$FILE" | sed 's/Copyright (c) //')
-            NEW_RANGE="$OLD_RANGE-$CURRENT_YEAR"
-            if [[ "$OLD_RANGE" == *-* ]]; then
-              sed -i "s/Copyright (c) $OLD_RANGE/Copyright (c) $NEW_RANGE/" "$FILE"
+            # 取得舊的年份範圍（2025 或 2025-2025）
+            OLD=$(grep -o "Copyright (c) [0-9]\{4\}\(-[0-9]\{4\}\)\?" "$FILE" | head -1 | sed 's/Copyright (c) //')
+            if [[ "$OLD" == *-* ]]; then
+              NEW="${OLD%-*}-$YEAR"
             else
-              sed -i "s/Copyright (c) $OLD_RANGE/Copyright (c) $OLD_RANGE-$CURRENT_YEAR/" "$FILE"
+              NEW="$OLD-$YEAR"
             fi
-            echo "Updated LICENSE: Copyright (c) $NEW_RANGE"
+            sed -i "s/Copyright (c) $OLD/Copyright (c) $NEW/" "$FILE"
+            echo "Updated LICENSE → Copyright (c) $NEW"
           fi
 
-      - name: Update README.md year
+      - name: Update README
         run: |
-          CURRENT_YEAR=$(date +'%Y')
+          YEAR="${{ steps.year.outputs.year }}"
           FILE="README.md"
-          if [ -f "$FILE" ] && grep -q "Copyright © $CURRENT_YEAR" "$FILE"; then
+          if [ -f "$FILE" ] && grep -q "Copyright © $YEAR" "$FILE"; then
             echo "README already up to date."
           elif [ -f "$FILE" ]; then
-            OLD_RANGE=$(grep -o "Copyright © [0-9]\{4\}\(-[0-9]\{4\}\)\?" "$FILE" | sed 's/Copyright © //')
-            NEW_RANGE="$OLD_RANGE-$CURRENT_YEAR"
-            if [[ "$OLD_RANGE" == *-* ]]; then
-              sed -i "s/Copyright © $OLD_RANGE/Copyright © $NEW_RANGE/" "$FILE"
+            OLD=$(grep -o "Copyright © [0-9]\{4\}\(-[0-9]\{4\}\)\?" "$FILE" | head -1 | sed 's/Copyright © //')
+            if [[ "$OLD" == *-* ]]; then
+              NEW="${OLD%-*}-$YEAR"
             else
-              sed -i "s/Copyright © $OLD_RANGE/Copyright © $OLD_RANGE-$CURRENT_YEAR/" "$FILE"
+              NEW="$OLD-$YEAR"
             fi
-            echo "Updated README: Copyright © $NEW_RANGE"
-          else
-            echo "README not found or no copyright line."
+            sed -i "s/Copyright © $OLD/Copyright © $NEW/" "$FILE"
+            echo "Updated README → Copyright © $NEW"
           fi
 
-      - name: Commit and push if changed
+      - name: Commit & Push
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add LICENSE README.md
-          git diff --quiet && git diff --staged --quiet || git commit -m "chore: update copyright year to $(date +'%Y')"
-          git push
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          git add LICENSE README.md 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: update copyright year to $(date +'%Y')"
+            git push
+            echo "Pushed changes."
+          fi
