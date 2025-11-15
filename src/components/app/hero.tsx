@@ -46,21 +46,17 @@ export function Hero() {
     const observer = new IntersectionObserver(
       ([entry]) => {
         const isInView =
-          entry.isIntersecting ||
-          entry.boundingClientRect.bottom > window.innerHeight * 0.3;
+          entry.isIntersecting || entry.boundingClientRect.bottom > 100;
         setShowArrow(isInView);
       },
       {
         root: null,
+        rootMargin: "0px 0px -100px 0px",
         threshold: 0,
-        rootMargin: "0px 0px -10px 0px",
       },
     );
 
-    if (heroRef.current) {
-      observer.observe(heroRef.current);
-    }
-
+    if (heroRef.current) observer.observe(heroRef.current);
     return () => observer.disconnect();
   }, []);
 
@@ -123,7 +119,7 @@ export function Hero() {
           transition={{ delay: 0.3 }}
           className={`${notoSerifTC.className} text-muted-foreground mx-auto max-w-2xl text-lg`}
         >
-          大學生・軟體開發・想成為工程師
+          大學生・軟體開發・網頁開發
         </motion.p>
 
         <motion.div
@@ -132,8 +128,8 @@ export function Hero() {
           transition={{ delay: 0.5 }}
           className="flex flex-col justify-center gap-4 sm:flex-row"
         >
-          <Button size="lg" className="" asChild>
-            <Link href="#projects">我的專案</Link>
+          <Button size="lg" asChild>
+            <Link href="#projects" scroll>我的專案</Link>
           </Button>
           <Button size="lg" variant="outline" asChild>
             <Link href="#tools">小工具</Link>
@@ -151,11 +147,13 @@ export function Hero() {
             });
           }}
         >
-          <Icon
-            icon="mdi:chevron-down"
-            width={32}
-            className="text-muted-foreground drop-shadow-lg"
-          />
+          <Link href="#projects">
+            <Icon
+              icon="mdi:chevron-down"
+              width={32}
+              className="text-muted-foreground drop-shadow-lg"
+            />
+          </Link>
         </motion.div>
       )}
     </section>
