@@ -129,10 +129,12 @@ export function Hero() {
           className="flex flex-col justify-center gap-4 sm:flex-row"
         >
           <Button size="lg" asChild>
-            <Link href="#projects" scroll>我的專案</Link>
+            <Link href="#projects" scroll>
+              我的專案
+            </Link>
           </Button>
           <Button size="lg" variant="outline" asChild>
-            <Link href="#tools">小工具</Link>
+            <Link href="/about">關於我</Link>
           </Button>
         </motion.div>
       </div>

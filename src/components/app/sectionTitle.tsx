@@ -1,4 +1,6 @@
-import { motion } from "motion/react";
+"use client";
+
+import { notoSerifTC } from "@/app/fonts";
 
 interface SectionTitleProps {
   title: string;
@@ -7,14 +9,13 @@ interface SectionTitleProps {
 
 export function SectionTitle({ title, subtitle }: SectionTitleProps) {
   return (
-    <div
-      // initial={{ opacity: 0, y: 20 }}
-      // whileInView={{ opacity: 1, y: 0 }}
-      // viewport={{ once: true }}
-      className="text-center space-y-3"
-    >
-      <h2 className="text-3xl sm:text-4xl font-bold">{title}</h2>
-      {subtitle && <p className="text-muted-foreground max-w-2xl mx-auto">{subtitle}</p>}
+    <div className="space-y-3 text-center">
+      <h2 className={`${notoSerifTC.className} text-3xl font-bold sm:text-4xl`}>
+        {title}
+      </h2>
+      {subtitle && (
+        <p className="text-muted-foreground mx-auto max-w-2xl">{subtitle}</p>
+      )}
     </div>
   );
 }

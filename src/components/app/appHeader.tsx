@@ -13,9 +13,13 @@ const navItems = [
 
 export default function AppHeader() {
   return (
-    <div className={`sticky top-0 flex items-center justify-between p-8 select-none z-40`}>
+    <div
+      className={`sticky top-0 z-40 flex items-center justify-between p-8 select-none`}
+    >
       <Link href="/">
-        <h1 className={`${playfairDisplay.className} fixed top-8 left-8 text-2xl font-bold`}>
+        <h1
+          className={`${playfairDisplay.className} fixed top-8 left-8 text-2xl font-bold`}
+        >
           YinCheng
         </h1>
       </Link>
