@@ -68,7 +68,7 @@ export default function AboutPage() {
 
         <section>
           <SectionTitle title="技能樹" />
-          <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             {skills.map((skill) => (
               <div
                 key={skill.name}
@@ -88,7 +88,7 @@ export default function AboutPage() {
 
         <section className="py-12 text-center">
           <SectionTitle title="聯絡資訊" />
-          <div className="mt-6 flex flex-col justify-center gap-4 md:flex-row">
+          <div className="flex flex-col justify-center gap-4 md:flex-row">
             <IconBadge
               icon="line-md:linkedin"
               label="Yin Cheng Wen"

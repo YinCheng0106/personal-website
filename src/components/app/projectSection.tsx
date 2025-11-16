@@ -26,7 +26,7 @@ export async function ProjectSection() {
           subtitle="我用心打造的作品，點擊卡片可查看詳細介紹"
         />
 
-        <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {featuredProjects.map((project) => (
             <ProjectCard key={project.slug} project={project} />
           ))}

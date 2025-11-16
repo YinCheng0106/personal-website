@@ -9,7 +9,7 @@ interface SectionTitleProps {
 
 export function SectionTitle({ title, subtitle }: SectionTitleProps) {
   return (
-    <div className="space-y-3 text-center">
+    <div className="space-y-3 text-center mb-8">
       <h2 className={`${notoSerifTC.className} text-3xl font-bold sm:text-4xl`}>
         {title}
       </h2>

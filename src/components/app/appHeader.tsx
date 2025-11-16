@@ -14,7 +14,7 @@ const navItems = [
 export default function AppHeader() {
   return (
     <div
-      className={`sticky top-0 z-40 flex items-center justify-between p-8 select-none`}
+      className={`sticky top-0 z-40 flex items-center justify-between p-8 backdrop-blur-sm select-none`}
     >
       <Link href="/">
         <h1
