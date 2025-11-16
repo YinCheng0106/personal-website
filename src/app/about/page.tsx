@@ -5,5 +5,5 @@ export default function AboutPage() {
     <div>
       <AboutSection />
     </div>
-  )
+  );
 }
