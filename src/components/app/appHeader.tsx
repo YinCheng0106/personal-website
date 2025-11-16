@@ -39,7 +39,6 @@ export default function AppHeader() {
           className="link"
           href="https://www.threads.com/@_yincheng_"
           target="_blank"
-          rel="noopener noreferrer"
         >
           <Icon icon="ri:threads-line" className="hidden md:block" width={24} />
         </Link>
@@ -47,7 +46,6 @@ export default function AppHeader() {
           className="link"
           href="https://www.instagram.com/_yincheng_"
           target="_blank"
-          rel="noopener noreferrer"
         >
           <Icon
             icon="ri:instagram-line"
@@ -59,7 +57,6 @@ export default function AppHeader() {
           className="link"
           href="https://github.com/YinCheng0106"
           target="_blank"
-          rel="noopener noreferrer"
         >
           <Icon icon="ri:github-line" className="block" width={24} />
         </Link>
