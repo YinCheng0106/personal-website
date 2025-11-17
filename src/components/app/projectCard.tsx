@@ -25,7 +25,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
   };
 
   return (
-    <Card className="group flex h-full flex-col overflow-hidden transition-all hover:shadow-lg">
+    <Card className="group flex h-full flex-col overflow-hidden transition-all duration-150 hover:scale-105 hover:shadow-lg">
       <Link href={`/projects/${project.slug}`} className="flex flex-1 flex-col">
         <CardHeader className="flex-1 space-y-3 pb-4">
           <div className="flex items-center justify-between">
