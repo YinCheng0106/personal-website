@@ -2,9 +2,14 @@
 
 import Link from "next/link";
 import { playfairDisplay, notoSerifTC } from "@/app/fonts";
-import { ModeToggle } from "@/components/app/themeSwitch";
 import { Icon } from "@iconify-icon/react";
 
+import { ModeToggle } from "@/components/app/themeSwitch";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 const navItems = [
   { label: "專案", href: "/projects" },
   { label: "部落格", href: "/blog" },
@@ -18,9 +23,14 @@ export default function AppHeader() {
     >
       <Link href="/">
         <h1
-          className={`${playfairDisplay.className} fixed top-8 left-8 text-2xl font-bold`}
+          className={`${playfairDisplay.className} fixed top-8 left-8 hidden text-2xl font-bold md:block`}
         >
           YinCheng
+        </h1>
+        <h1
+          className={`${playfairDisplay.className} fixed top-8 left-8 block text-2xl font-bold md:hidden`}
+        >
+          YC
         </h1>
       </Link>
       <div className="flex items-center justify-around gap-4">
@@ -35,23 +45,48 @@ export default function AppHeader() {
             </Link>
           ))}
         </nav>
+        <Link href="/projects" className="link block md:hidden" target="_self">
+          <Tooltip>
+            <TooltipTrigger className="block">
+              <Icon
+                icon="ri:git-repository-line"
+                className="block"
+                width={24}
+              />
+            </TooltipTrigger>
+            <TooltipContent>專案</TooltipContent>
+          </Tooltip>
+        </Link>
+        <Link href="/blog" className="link block md:hidden" target="_self">
+          <Tooltip>
+            <TooltipTrigger className="block">
+              <Icon icon="ri:article-line" className="block" width={24} />
+            </TooltipTrigger>
+            <TooltipContent>部落格</TooltipContent>
+          </Tooltip>
+        </Link>
+        <Link href="/about" className="link block md:hidden" target="_self">
+          <Tooltip>
+            <TooltipTrigger className="block">
+              <Icon icon="ri:information-line" className="block" width={24} />
+            </TooltipTrigger>
+            <TooltipContent>關於我</TooltipContent>
+          </Tooltip>
+        </Link>
+
         <Link
-          className="link"
+          className="link hidden md:block"
           href="https://www.threads.com/@_yincheng_"
           target="_blank"
         >
-          <Icon icon="ri:threads-line" className="hidden md:block" width={24} />
+          <Icon icon="ri:threads-line" className="block" width={24} />
         </Link>
         <Link
           className="link"
           href="https://www.instagram.com/_yincheng_"
           target="_blank"
         >
-          <Icon
-            icon="ri:instagram-line"
-            className="hidden md:block"
-            width={24}
-          />
+          <Icon icon="ri:instagram-line" className="block" width={24} />
         </Link>
         <Link
           className="link"

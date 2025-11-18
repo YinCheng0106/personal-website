@@ -103,13 +103,13 @@ export default function NotFound() {
       <motion.div
         animate={{
           x: [-1200, 1200],
-          y: mode === "speed" ? [0, -50, -70, 0] : [0, -30, -50, 0],
+          y: mode === "speed" ? [190, 190] : [1000, -1000],
           rotate: [-360, 360],
         }}
         transition={{
-          duration: mode === "speed" ? 2 : 3.5,
+          duration: mode === "speed" ? 0.5 : 3.5,
           repeat: Infinity,
-          repeatDelay: mode === "speed" ? 8 : 8,
+          repeatDelay: 8,
           ease: "easeInOut",
         }}
         className="pointer-events-none absolute text-5xl"

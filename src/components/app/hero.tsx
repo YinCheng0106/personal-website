@@ -17,7 +17,6 @@ const slogans = [
   "靜靜思考、專注創造，讓每一行程式都成為故事的開端",
   "休息是為了走更長遠的路",
   "但我一休息就半天過去了:)",
-  "希望看到這句話的妳，也能天天幸福開心！",
 ];
 
 const slogans_light = [
@@ -29,13 +28,12 @@ const slogans_light = [
   "寫程式是我的熱情，也是我與世界溝通的方式",
   "休息是為了走更長遠的路",
   "但我一休息就半天過去了:)",
-  "希望看到這句話的妳，也能天天幸福開心！",
 ];
 
 export function Hero() {
   const { theme } = useTheme();
 
-  const heroRef = useRef<HTMLElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
 
   const [sloganIndex, setSloganIndex] = useState(0);
   const [displayText, setDisplayText] = useState("");
@@ -51,7 +49,7 @@ export function Hero() {
       },
       {
         root: null,
-        rootMargin: "0px 0px -100px 0px",
+        rootMargin: "0px -10px -100px 0px",
         threshold: 0,
       },
     );
@@ -86,11 +84,11 @@ export function Hero() {
   }, [displayText, isDeleting, sloganIndex, theme]);
 
   return (
-    <section
-      ref={heroRef}
-      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4"
-    >
-      <div className="mx-auto mb-16 max-w-4xl space-y-8 text-center">
+    <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4">
+      <div
+        ref={heroRef}
+        className="mx-auto mb-16 max-w-4xl space-y-8 text-center"
+      >
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

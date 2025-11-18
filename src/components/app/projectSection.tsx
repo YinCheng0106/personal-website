@@ -19,8 +19,8 @@ export async function ProjectSection() {
   const featuredProjects = projectsWithStats.filter((p) => p.featured);
 
   return (
-    <section id="projects" className="px-4 py-20">
-      <div className="mx-auto max-w-6xl">
+    <section className="px-4 py-40">
+      <div id="projects" className="mx-auto max-w-6xl">
         <SectionTitle
           title="精選專案"
           subtitle="我用心打造的作品，點擊卡片可查看詳細介紹"
