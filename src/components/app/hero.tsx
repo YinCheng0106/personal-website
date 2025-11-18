@@ -84,7 +84,7 @@ export function Hero() {
   }, [displayText, isDeleting, sloganIndex, theme]);
 
   return (
-    <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4">
+    <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 select-none">
       <div
         ref={heroRef}
         className="mx-auto mb-16 max-w-4xl space-y-8 text-center"

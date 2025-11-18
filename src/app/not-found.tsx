@@ -93,7 +93,11 @@ export default function NotFound() {
         className={`${notoSerifTC.className} text-muted-foreground text-center text-base font-bold sm:text-lg`}
       >
         {displayText}
-        <span className="bg-primary ml-1 inline-block h-5 w-0.5 animate-pulse" />{" "}
+        <motion.span
+          animate={{ opacity: [1, 0] }}
+          transition={{ duration: 0.5, repeat: Infinity }}
+          className="bg-accent-foreground ml-1 inline-block h-6 w-1"
+        />{" "}
       </p>
       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
         <Button asChild variant="ghost" size="lg" className="font-medium">

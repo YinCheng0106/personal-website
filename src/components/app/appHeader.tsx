@@ -10,6 +10,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+
 const navItems = [
   { label: "專案", href: "/projects" },
   { label: "部落格", href: "/blog" },
@@ -45,34 +46,38 @@ export default function AppHeader() {
             </Link>
           ))}
         </nav>
-        <Link href="/projects" className="link block md:hidden" target="_self">
-          <Tooltip>
-            <TooltipTrigger className="block">
+        <Tooltip>
+          <TooltipTrigger className="md:hidden">
+            <Link
+              href="/projects"
+              className="link block md:hidden"
+              target="_self"
+            >
               <Icon
                 icon="ri:git-repository-line"
                 className="block"
                 width={24}
               />
-            </TooltipTrigger>
-            <TooltipContent>專案</TooltipContent>
-          </Tooltip>
-        </Link>
-        <Link href="/blog" className="link block md:hidden" target="_self">
-          <Tooltip>
-            <TooltipTrigger className="block">
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent>專案</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger className="md:hidden">
+            <Link href="/blog" className="link block md:hidden" target="_self">
               <Icon icon="ri:article-line" className="block" width={24} />
-            </TooltipTrigger>
-            <TooltipContent>部落格</TooltipContent>
-          </Tooltip>
-        </Link>
-        <Link href="/about" className="link block md:hidden" target="_self">
-          <Tooltip>
-            <TooltipTrigger className="block">
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent>部落格</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger className="md:hidden">
+            <Link href="/about" className="link block md:hidden" target="_self">
               <Icon icon="ri:information-line" className="block" width={24} />
-            </TooltipTrigger>
-            <TooltipContent>關於我</TooltipContent>
-          </Tooltip>
-        </Link>
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent>關於我</TooltipContent>
+        </Tooltip>
 
         <Link
           className="link hidden md:block"
