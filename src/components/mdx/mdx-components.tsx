@@ -39,8 +39,8 @@ export function MDXComponents(components: MDXComponents): MDXComponents {
         {...(props as ImageProps)}
         alt={props.alt || ""}
         className="my-4 rounded-md"
-        width={800}
-        height={600}
+        width={320}
+        height={240}
       />
     ),
     Callout: (props) => <Callout {...props} />,

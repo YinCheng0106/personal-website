@@ -1,5 +1,4 @@
 import remarkGfm from "remark-gfm";
-import remarkToc from "remark-toc";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { Icon } from "@iconify-icon/react";
@@ -36,10 +35,8 @@ export default async function PostPage({ params }: Props) {
     return notFound();
   }
 
-  const remarkPlugins = [remarkGfm, remarkToc];
-
   return (
-    <article className="mx-auto max-w-4xl px-6 py-16">
+    <article className="mx-auto max-w-4xl px-4 md:px-6 py-16 w-full">
       <header className="mb-12 text-center">
         <h1
           className={`mb-4 text-2xl font-bold md:text-5xl ${notoSerifTC.className}`}
@@ -86,7 +83,7 @@ export default async function PostPage({ params }: Props) {
         </div>
       </header>
       <section
-        className={`prose md:prose-lg prose-pre:bg-accent prose-table:table-auto dark:prose-invert max-w-none`}
+        className={`prose md:prose-lg prose-pre:bg-accent prose-table:table-auto dark:prose-invert max-w-dvw`}
       >
         <MDXRemote
           source={post.content}

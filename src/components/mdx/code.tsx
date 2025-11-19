@@ -30,5 +30,5 @@ export async function Code({ children, className, ...props }: CodeProps) {
     cssVariablePrefix: "--shiki-",
   });
 
-  return <code  dangerouslySetInnerHTML={{ __html: html }} {...props} />;
+  return <code className="overflow-x-scroll" dangerouslySetInnerHTML={{ __html: html }} {...props} />;
 }
