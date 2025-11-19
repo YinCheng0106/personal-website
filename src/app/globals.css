@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@plugin "@tailwindcss/typography";
 
 html {
   scroll-behavior: smooth;
@@ -123,6 +124,9 @@ html {
   }
   body {
     @apply bg-background text-foreground;
+  }
+  pre {
+    @apply bg-accent overflow-x-auto rounded-lg p-4;
   }
   .link {
     @apply text-primary/50 hover:text-primary transform transition-colors duration-200;

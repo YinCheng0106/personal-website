@@ -39,7 +39,7 @@ export function ProjectBlock({ type, logo, title, description, link }: Props) {
                   alt={`${title} logo`}
                   width={56}
                   height={56}
-                  className="object-contain group-hover:brightness-100 group-hover:contrast-110 transition-all duration-300"
+                  className="object-contain transition-all duration-300 group-hover:brightness-100 group-hover:contrast-110"
                 />
               </div>
             ) : (
