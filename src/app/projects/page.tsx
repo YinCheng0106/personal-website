@@ -8,18 +8,24 @@ export default function ProjectsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <SectionTitle title="專案" subtitle="我做的所有專案都在這裡展示" />
-      <div className="grid gap-4 md:grid-cols-2">
-        {projects.map((project: Project) => (
-          <ProjectBlock 
-            key={project.slug} 
-            type={project.type} 
-            logo={project.logo} 
-            title={project.title} 
-            description={project.description} 
-            link={`projects/${project.slug}`} 
-          />
-        ))}
-      </div>
+      {projects.length === 0 ? (
+        <p className="text-muted-foreground justify-center text-center">
+          目前沒有任何專案，請稍後再回來看看！
+        </p>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2">
+          {projects.map((project: Project) => (
+            <ProjectBlock
+              key={project.slug}
+              type={project.type}
+              logo={project.logo}
+              title={project.title}
+              description={project.description}
+              link={`projects/${project.slug}`}
+            />
+          ))}
+        </div>
+      )}
     </div>
-  )
+  );
 }
