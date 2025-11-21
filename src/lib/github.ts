@@ -225,7 +225,6 @@ export async function getRepoREADME(repo: string) {
     if (!res.ok) return null;
 
     const data = await res.json();
-    console.log("GitHub README data:", data);
     return data;
   } catch (error) {
     console.error("Error fetching GitHub repo README:", error);
