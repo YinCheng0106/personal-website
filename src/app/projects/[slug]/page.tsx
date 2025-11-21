@@ -146,9 +146,21 @@ export default async function ProjectPage({ params }: Props) {
           </div>
         </div>
         <div className="divide-accent mb-auto grid grid-cols-1 divide-y md:col-span-1">
+          {/* GitHub Project Details */}
+          <div className="flex flex-col gap-2 py-4">
+            <h2 className="text-lg font-semibold">簡介</h2>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {githubStats?.description ? (
+                <p>{githubStats.description}</p>
+              ) : (
+                <p className="text-muted-foreground">無簡介</p>
+              )}
+            </div>
+          </div>
+
           {/* Topics */}
           <div className="flex flex-col gap-2 py-4">
-            <h2 className="text-lg font-semibold">類別</h2>
+            <h2 className="text-lg font-semibold">主題</h2>
             <div className="mt-2 flex flex-wrap gap-2">
               {githubStats?.topics.length ? (
                 githubStats.topics.map((topic: string) => (
