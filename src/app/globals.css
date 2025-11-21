@@ -131,4 +131,7 @@ html {
   .link {
     @apply text-primary/50 hover:text-primary transform transition-colors duration-200;
   }
+  .link-accent {
+    @apply text-accent-foreground hover:text-accent transform transition-colors duration-200;
+  }
 }
