@@ -5,6 +5,7 @@ import {
   playfairDisplay,
 } from "@/app/fonts";
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/app/theme-provider";
 import AppHeader from "@/components/app/appHeader";
 import AppFooter from "@/components/app/appFooter";
@@ -31,7 +32,10 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AppHeader />
-          <main className="flex flex-1 flex-col">{children}</main>
+          <main className="flex flex-1 flex-col">
+            {children}
+            <Analytics />
+          </main>
           <AppFooter />
         </ThemeProvider>
       </body>
