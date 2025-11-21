@@ -27,7 +27,7 @@ export default function BlogPage() {
       <SectionTitle title="部落格" />
 
       {posts.length === 0 ? (
-        <p className="text-muted-foreground text-center justify-center">
+        <p className="text-muted-foreground justify-center text-center">
           文章努力產出中，敬請期待！
         </p>
       ) : (

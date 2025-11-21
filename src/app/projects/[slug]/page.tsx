@@ -40,9 +40,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
+  const githubStats = project?.github
+    ? await getGitHubStats(project.github)
+    : null;
+
   return {
     title: project.title,
-    description: project.description,
+    description: githubStats?.description === null ? project.description : githubStats?.description,
   };
 }
 
@@ -51,13 +55,13 @@ export default async function ProjectPage({ params }: Props) {
 
   const project: Project | undefined = projects.find((p) => p.slug === slug);
 
-  const githubStats = project?.github
-    ? await getGitHubStats(project.github)
-    : null;
-
   if (!project) {
     return notFound();
   }
+
+  const githubStats = project?.github
+    ? await getGitHubStats(project.github)
+    : null;
 
   return (
     <div className="container mx-auto px-4 py-8">

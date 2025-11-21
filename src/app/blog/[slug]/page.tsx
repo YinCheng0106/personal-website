@@ -47,7 +47,7 @@ export default async function PostPage({ params }: Props) {
   }
 
   return (
-    <article className="mx-auto max-w-4xl px-4 md:px-6 py-16 w-full">
+    <article className="mx-auto w-full max-w-4xl px-4 py-16 md:px-6">
       <header className="mb-12 text-center">
         <h1
           className={`mb-4 text-2xl font-bold md:text-5xl ${notoSerifTC.className}`}
