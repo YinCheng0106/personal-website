@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Icon } from "@iconify-icon/react";
 import { formatDistance } from "date-fns";
@@ -26,6 +27,24 @@ const typeIcon: Record<string, string> = {
   tools: "mdi:tools",
   library: "mdi:library-books",
 };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+
+  const project: Project | undefined = projects.find((p) => p.slug === slug);
+
+  if (!project) {
+    return {
+      title: "專案不存在",
+      description: "找不到您所尋找的專案。",
+    };
+  }
+
+  return {
+    title: project.title,
+    description: project.description,
+  };
+}
 
 export default async function ProjectPage({ params }: Props) {
   const { slug } = await params;

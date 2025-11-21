@@ -1,10 +1,11 @@
 import remarkGfm from "remark-gfm";
 import { notFound } from "next/navigation";
+import { Metadata } from "next";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { Icon } from "@iconify-icon/react";
 
 import { notoSerifTC } from "@/app/fonts";
-import { getPostBySlug, getAllPosts } from "@/lib/posts";
+import { getPostBySlug } from "@/lib/posts";
 
 import { MDXComponents } from "@/components/mdx/mdx-components";
 import { Badge } from "@/components/ui/badge";
@@ -14,18 +15,28 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-export async function generateStaticParams() {
-  const posts = getAllPosts();
-  return posts.map((post) => ({
-    slug: post.slug,
-  }));
-}
-
 type Props = {
   params: Promise<{
     slug: string;
   }>;
 };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const post = getPostBySlug(slug);
+
+  if (!post) {
+    return {
+      title: "文章不存在",
+      description: "找不到您所尋找的文章。",
+    };
+  }
+
+  return {
+    title: post.title,
+    description: post.description,
+  };
+}
 
 export default async function PostPage({ params }: Props) {
   const { slug } = await params;

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Metadata } from "next";
 import { Icon } from "@iconify-icon/react";
 
 import { getAllPosts } from "@/lib/posts";
@@ -12,6 +13,11 @@ import {
 } from "@/components/ui/card";
 import { SectionTitle } from "@/components/app/sectionTitle";
 import { Badge } from "@/components/ui/badge";
+
+export const metadata: Metadata = {
+  title: "部落格",
+  description: "閱讀我最新的文章與分享",
+};
 
 export default function BlogPage() {
   const posts = getAllPosts();

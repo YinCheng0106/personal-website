@@ -11,7 +11,10 @@ import AppHeader from "@/components/app/appHeader";
 import AppFooter from "@/components/app/appFooter";
 
 export const metadata: Metadata = {
-  title: "YinCheng",
+  title: {
+    default: "YinCheng",
+    template: "%s | YinCheng",
+  },
   description: "Personal website of YinCheng",
 };
 

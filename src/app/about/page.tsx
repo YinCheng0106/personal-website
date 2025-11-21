@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Metadata } from "next";
 import { Icon } from "@iconify-icon/react";
 import { notoSerifTC } from "@/app/fonts";
 
@@ -22,6 +23,11 @@ const skills = [
   { name: "C++", icon: "logos:c-plusplus", learning: false },
   { name: "C#", icon: "logos:c-sharp", learning: true },
 ];
+
+export const metadata: Metadata = {
+  title: "關於我",
+  description: "認識 YinCheng，了解我的技能與聯絡方式",
+};
 
 export default function AboutPage() {
   return (

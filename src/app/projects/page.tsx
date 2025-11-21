@@ -1,8 +1,14 @@
+import { Metadata } from "next";
 import { projects } from "@/lib/projects";
 import type { Project } from "@/lib/projects";
 
 import { SectionTitle } from "@/components/app/sectionTitle";
 import { ProjectBlock } from "@/components/app/projectBlock";
+
+export const metadata: Metadata = {
+  title: "專案",
+  description: "展示我所有的專案",
+};
 
 export default function ProjectsPage() {
   return (
