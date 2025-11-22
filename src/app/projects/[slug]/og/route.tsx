@@ -5,9 +5,9 @@ import { ImageResponse } from "next/og";
 import { projects } from "@/lib/projects";
 import type { Project } from "@/lib/projects";
 
-export async function ImageProject(
+export async function GET(
   request: Request,
-  { params }: { params: { slug: string } },
+  { params }: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await params;
   const project: Project | undefined = projects.find((p) => p.slug === slug);
@@ -24,7 +24,7 @@ export async function ImageProject(
     join(process.cwd(), "public", "fonts", "NotoSerifTC-Regular.ttf"),
   );
 
-  return new ImageResponse(
+  const imageResponse = new ImageResponse(
     (
       <div
         style={{
@@ -105,4 +105,11 @@ export async function ImageProject(
       ],
     },
   );
+
+  return new Response(imageResponse.body, {
+    status: 200,
+    headers: {
+      "Content-Type": "image/png",
+    },
+  });
 }

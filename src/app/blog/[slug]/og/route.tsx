@@ -3,9 +3,9 @@ import { readFile } from "fs/promises";
 import { ImageResponse } from "next/og";
 import { getPostBySlug } from "@/lib/posts";
 
-export async function ImageBlog(
+export async function GET(
   request: Request,
-  { params }: { params: { slug: string } },
+  { params }: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await params;
   const post = getPostBySlug(slug);
@@ -22,7 +22,7 @@ export async function ImageBlog(
     join(process.cwd(), "public", "fonts", "NotoSerifTC-Regular.ttf"),
   );
 
-  return new ImageResponse(
+  const imageResponse = new ImageResponse(
     (
       <div
         style={{
@@ -37,6 +37,7 @@ export async function ImageBlog(
           flexWrap: "nowrap",
         }}
       >
+        {/* 省略中間樣式程式碼，保持不變 */}
         <div
           style={{
             height: "50%",
@@ -103,4 +104,11 @@ export async function ImageBlog(
       ],
     },
   );
+
+  return new Response(imageResponse.body, {
+    status: 200,
+    headers: {
+      "Content-Type": "image/png",
+    },
+  });
 }

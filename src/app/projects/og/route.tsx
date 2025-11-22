@@ -2,8 +2,7 @@ import { join } from "path";
 import { readFile } from "fs/promises";
 import { ImageResponse } from "next/og";
 
-export async function ImageProject() {
-
+export async function GET() {
   const notoSerifTC_bold = await readFile(
     join(process.cwd(), "public", "fonts", "NotoSerifTC-Bold.ttf"),
   );
@@ -12,7 +11,7 @@ export async function ImageProject() {
     join(process.cwd(), "public", "fonts", "NotoSerifTC-Regular.ttf"),
   );
 
-  return new ImageResponse(
+  const imageResponse = new ImageResponse(
     (
       <div
         style={{
@@ -93,4 +92,11 @@ export async function ImageProject() {
       ],
     },
   );
+
+  return new Response(imageResponse.body, {
+    status: 200,
+    headers: {
+      "Content-Type": "image/png",
+    },
+  });
 }
