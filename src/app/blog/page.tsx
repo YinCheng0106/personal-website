@@ -17,6 +17,28 @@ import { Badge } from "@/components/ui/badge";
 export const metadata: Metadata = {
   title: "部落格",
   description: "閱讀我最新的文章與分享",
+  openGraph: {
+    title: "部落格",
+    description: "閱讀我最新的文章與分享",
+    url: "https://yincheng.app/blog",
+    siteName: "YinCheng 部落格",
+    images: [
+      {
+        url: "https://yincheng.app/api/og?title=部落格",
+        width: 1200,
+        height: 630,
+        alt: "YinCheng 部落格",
+      },
+    ],
+    locale: "zh_TW",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "部落格",
+    description: "閱讀我最新的文章與分享",
+    images: ["https://yincheng.app/api/og?title=部落格"],
+  }
 };
 
 export default function BlogPage() {
