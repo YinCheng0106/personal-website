@@ -7,7 +7,29 @@ import { ProjectBlock } from "@/components/app/projectBlock";
 
 export const metadata: Metadata = {
   title: "專案",
-  description: "展示我所有的專案",
+  description: "瀏覽我所參與或開發的專案",
+  openGraph: {
+    title: "專案",
+    description: "瀏覽我所參與或開發的專案",
+    url: "https://yincheng.app/projects",
+    siteName: "YinCheng 專案",
+    images: [
+      {
+        url: "https://yincheng.app/projects/og",
+        width: 1200,
+        height: 630,
+        alt: "YinCheng 專案",
+      },
+    ],
+    locale: "zh_TW",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "專案",
+    description: "瀏覽我所參與或開發的專案",
+    images: ["https://yincheng.app/projects/og"],
+  },
 };
 
 export default function ProjectsPage() {

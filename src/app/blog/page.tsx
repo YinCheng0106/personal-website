@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     siteName: "YinCheng 部落格",
     images: [
       {
-        url: "https://yincheng.app/api/og?title=部落格",
+        url: "https://yincheng.app/blog/og",
         width: 1200,
         height: 630,
         alt: "YinCheng 部落格",
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "部落格",
     description: "閱讀我最新的文章與分享",
-    images: ["https://yincheng.app/api/og?title=部落格"],
+    images: ["https://yincheng.app/blog/og"],
   }
 };
 

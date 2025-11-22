@@ -46,8 +46,36 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: project.title,
-    // description 等待修復
-    description: githubStats?.description === null ? project.description : githubStats?.description,
+    description:
+      githubStats?.description === null
+        ? project.description
+        : githubStats?.description,
+    openGraph: {
+      title: project.title,
+      description:
+        githubStats?.description === null
+          ? project.description
+          : githubStats?.description,
+      url: `https://yincheng.app/projects/${slug}`,
+      type: "website",
+      images: [
+        {
+          url: `https://yincheng.app/projects/${slug}/og`,
+          width: 1200,
+          height: 630,
+          alt: project.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: project.title,
+      description:
+        githubStats?.description === null
+          ? project.description
+          : githubStats?.description,
+      images: [`https://yincheng.app/projects/${slug}/og`],
+    },
   };
 }
 
