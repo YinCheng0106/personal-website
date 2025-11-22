@@ -3,7 +3,7 @@ import { readFile } from "fs/promises";
 import { ImageResponse } from "next/og";
 import { getPostBySlug } from "@/lib/posts";
 
-export async function GET(
+export async function ImageBlog(
   request: Request,
   { params }: { params: { slug: string } },
 ) {

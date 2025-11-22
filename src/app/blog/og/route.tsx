@@ -2,7 +2,7 @@ import { join } from "path";
 import { readFile } from "fs/promises";
 import { ImageResponse } from "next/og";
 
-export async function GET() {
+export async function ImageBlog() {
 
   const notoSerifTC_bold = await readFile(
     join(process.cwd(), "public", "fonts", "NotoSerifTC-Bold.ttf"),

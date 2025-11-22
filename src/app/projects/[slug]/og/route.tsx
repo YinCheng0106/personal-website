@@ -5,7 +5,7 @@ import { ImageResponse } from "next/og";
 import { projects } from "@/lib/projects";
 import type { Project } from "@/lib/projects";
 
-export async function GET(
+export async function ImageProject(
   request: Request,
   { params }: { params: { slug: string } },
 ) {
