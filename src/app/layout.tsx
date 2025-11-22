@@ -16,6 +16,22 @@ export const metadata: Metadata = {
     template: "%s | YinCheng",
   },
   description: "Personal website of YinCheng",
+  openGraph: {
+    title: "YinCheng",
+    description: "Personal website of YinCheng",
+    url: "https://yincheng.app",
+    siteName: "YinCheng",
+    images: [
+      {
+        url: "https://yincheng.app/api/og",
+        width: 1200,
+        height: 630,
+        alt: "YinCheng",
+      },
+    ],
+    locale: "zh_TW",
+    type: "website",
+  }
 };
 
 export default function RootLayout({

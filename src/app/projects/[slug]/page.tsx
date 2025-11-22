@@ -46,6 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: project.title,
+    // description 等待修復
     description: githubStats?.description === null ? project.description : githubStats?.description,
   };
 }
