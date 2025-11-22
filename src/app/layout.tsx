@@ -31,6 +31,12 @@ export const metadata: Metadata = {
     ],
     locale: "zh_TW",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "YinCheng",
+    description: "Personal website of YinCheng",
+    images: ["https://yincheng.app/api/og"],
   }
 };
 
