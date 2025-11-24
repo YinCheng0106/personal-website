@@ -5,6 +5,7 @@ import {
   playfairDisplay,
 } from "@/app/fonts";
 import type { Metadata } from "next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/app/theme-provider";
 import AppHeader from "@/components/app/appHeader";
@@ -59,6 +60,7 @@ export default function RootLayout({
           <AppHeader />
           <main className="flex flex-1 flex-col">
             {children}
+            <SpeedInsights />
             <Analytics />
           </main>
           <AppFooter />
