@@ -1,5 +1,4 @@
 import type { MDXComponents } from "mdx/types";
-import Image, { ImageProps } from "next/image";
 import Link from "next/link";
 
 import { Callout } from "@/components/mdx/callout";
@@ -33,15 +32,6 @@ export function MDXComponents(components: MDXComponents): MDXComponents {
       >
         {children}
       </Link>
-    ),
-    img: (props) => (
-      <Image
-        {...(props as ImageProps)}
-        alt={props.alt || ""}
-        className="my-4 rounded-md"
-        width={320}
-        height={240}
-      />
     ),
     Callout: (props) => <Callout {...props} />,
     pre: ({ children }) => <pre>{children}</pre>,
