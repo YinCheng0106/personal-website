@@ -122,7 +122,7 @@ export async function getGitHubStats(repo: string) {
       headers: {
         Authorization: `token ${process.env.GITHUB_TOKEN}`,
       },
-      next: { revalidate: 3600 },
+      next: { revalidate: 300 },
     });
     if (!res.ok) return null;
 
@@ -162,7 +162,7 @@ const getRepoLanguage = async (repo: string) => {
       headers: {
         Authorization: `token ${process.env.GITHUB_TOKEN}`,
       },
-      next: { revalidate: 3600 },
+      next: { revalidate: 300 },
     });
     if (!res.ok) return null;
 
@@ -202,7 +202,7 @@ export async function getRepoRelease(repo: string) {
       headers: {
         Authorization: `token ${process.env.GITHUB_TOKEN}`,
       },
-      next: { revalidate: 3600 },
+      next: { revalidate: 300 },
     });
     if (!res.ok) return null;
 
@@ -220,7 +220,7 @@ export async function getRepoREADME(repo: string) {
       headers: {
         Authorization: `token ${process.env.GITHUB_TOKEN}`,
       },
-      next: { revalidate: 3600 },
+      next: { revalidate: 300 },
     });
     if (!res.ok) return null;
 
