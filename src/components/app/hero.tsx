@@ -124,14 +124,14 @@ export function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="flex flex-col justify-center gap-4 sm:flex-row"
+          className="flex flex-col items-center justify-center gap-4 sm:flex-row"
         >
-          <Button size="lg" asChild>
+          <Button size="lg" className="w-40" asChild>
             <Link href="#projects" scroll>
               我的專案
             </Link>
           </Button>
-          <Button size="lg" variant="outline" asChild>
+          <Button size="lg" variant="outline" className="w-40" asChild>
             <Link href="/about">關於我</Link>
           </Button>
         </motion.div>
