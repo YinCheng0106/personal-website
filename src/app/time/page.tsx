@@ -3,9 +3,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// --- 物理實體定義 ---
-
-// 1. 背景星星
 class Star {
   x: number; y: number; size: number; opacity: number; speed: number;
   constructor(w: number, h: number) {
@@ -25,7 +22,6 @@ class Star {
   }
 }
 
-// 2. 煙火粒子 (爆炸後的點)
 class Particle {
   x: number; y: number; color: string; velocity: { x: number; y: number };
   alpha: number; friction: number; gravity: number;
@@ -52,20 +48,19 @@ class Particle {
   }
 }
 
-// 3. 升空火箭 (從地面升起)
 class Rocket {
   x: number; y: number; targetY: number; color: string; velocityY: number;
   exploded: boolean = false;
   constructor(w: number, h: number) {
-    this.x = (w * 0.2) + Math.random() * (w * 0.6); // 隨機水平位置
-    this.y = h; // 從底部開始
-    this.targetY = (h * 0.1) + Math.random() * (h * 0.4); // 爆炸高度
-    this.velocityY = -(Math.random() * 4 + 8); // 向上速度
+    this.x = (w * 0.2) + Math.random() * (w * 0.6);
+    this.y = h;
+    this.targetY = (h * 0.1) + Math.random() * (h * 0.4);
+    this.velocityY = -(Math.random() * 4 + 8);
     this.color = `hsl(${Math.random() * 360}, 100%, 60%)`;
   }
   update() {
     this.y += this.velocityY;
-    this.velocityY += 0.05; // 空氣阻力
+    this.velocityY += 0.05;
     if (this.velocityY >= 0 || this.y <= this.targetY) {
       this.exploded = true;
     }
@@ -75,7 +70,6 @@ class Rocket {
     ctx.beginPath();
     ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
     ctx.fill();
-    // 簡單的尾跡
     ctx.strokeStyle = this.color;
     ctx.beginPath();
     ctx.moveTo(this.x, this.y);
@@ -94,9 +88,8 @@ export default function NewYearTimePage() {
   const particles = useRef<Particle[]>([]);
   const stars = useRef<Star[]>([]);
 
-  // 倒數邏輯 (當前時間為 2025-12-31 05:23，距離跨年還有約 18 小時)
   useEffect(() => {
-    const target = new Date('2025-01-01T00:00:00').getTime();
+    const target = new Date('2026-01-01T00:00:00').getTime();
     const timer = setInterval(() => {
       const now = Date.now();
       const diff = target - now;
@@ -105,7 +98,6 @@ export default function NewYearTimePage() {
         clearInterval(timer);
         setIsNewYear(true);
         setShowMessage(true);
-        // 5秒後隱藏文字，但煙火繼續
         setTimeout(() => setShowMessage(false), 5000);
       } else {
         setTimeLeft({
@@ -118,7 +110,6 @@ export default function NewYearTimePage() {
     return () => clearInterval(timer);
   }, []);
 
-  // 動畫循環
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -126,7 +117,6 @@ export default function NewYearTimePage() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    // 初始化星星
     stars.current = Array.from({ length: 150 }, () => new Star(canvas.width, canvas.height));
 
     const createExplosion = (x: number, y: number, color: string) => {
@@ -156,18 +146,14 @@ export default function NewYearTimePage() {
 
     let animationId: number;
     const animate = () => {
-      // 每一幀塗黑，帶一點透明度產生拖尾
       ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // 畫星星
       stars.current.forEach(star => star.draw(ctx));
 
       if (isNewYear) {
-        // 生成火箭
         if (Math.random() < 0.05) rockets.current.push(new Rocket(canvas.width, canvas.height));
 
-        // 更新火箭
         rockets.current.forEach((rocket, i) => {
           rocket.update();
           rocket.draw(ctx);
@@ -177,7 +163,6 @@ export default function NewYearTimePage() {
           }
         });
 
-        // 更新爆炸粒子
         particles.current.forEach((p, i) => {
           p.update();
           p.draw(ctx);
