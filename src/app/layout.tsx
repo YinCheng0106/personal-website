@@ -8,8 +8,6 @@ import type { Metadata } from "next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/app/theme-provider";
-import AppHeader from "@/components/app/appHeader";
-import AppFooter from "@/components/app/appFooter";
 
 export const metadata: Metadata = {
   title: {
@@ -57,13 +55,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AppHeader />
           <main className="flex flex-1 flex-col">
             {children}
             <SpeedInsights />
             <Analytics />
           </main>
-          <AppFooter />
         </ThemeProvider>
       </body>
     </html>
