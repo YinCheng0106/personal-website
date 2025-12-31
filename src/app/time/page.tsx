@@ -231,12 +231,7 @@ const FinalCountdown = ({ seconds }: { seconds: number }) => (
 
 const messages = [
   "5paw55qE5LiA5bm0",
-  "5biM5pyb5oiR5YCR6YO96IO96LWw5Zyo6Ieq5bex55qE6YGT6Lev5LiK",
-  "6LaK6LWw6LaK56mp",
-  "6LaK6LWw6LaK6aCG",
-  "5aW95aW955Sf5rS777yM5aW95aW95oiQ54K66Ieq5bex",
-  "5LiA5YiH5bCH5pyD5pyJ5baE5paw55qE5LiA6Z2i77yB",
-  "6YCZ54WZ54Gr5pyD5pS+NDU556eS77yM5oWi5oWi6KeA6LOe5ZCn",
+  "56Wd5aSn5a625bmz5a6J6aCG5Yip",
 ];
 
 const decodeMessage = (base64: string) => {
