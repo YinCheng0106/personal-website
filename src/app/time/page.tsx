@@ -307,7 +307,7 @@ const NewYearMessage = ({ showWishes }: { showWishes: boolean }) => {
 };
 
 export default function NewYearTimePage() {
-  const target = new Date("2025-12-31T18:00:00").getTime();
+  const target = new Date("2026-01-01T00:00:00").getTime();
 
   const computeTimeLeft = (targetTime: number) => {
     const now = Date.now();
