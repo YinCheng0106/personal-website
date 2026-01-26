@@ -121,14 +121,12 @@ class Rocket {
     if (this.velocityY >= -1 || this.y <= this.targetY) {
       this.exploded = true;
     }
-    // Add trail
     this.trail.push({ x: this.x, y: this.y, alpha: 1 });
     this.trail = this.trail.filter((t) => t.alpha > 0);
     this.trail.forEach((t) => (t.alpha -= 0.08));
   }
 
   draw(ctx: CanvasRenderingContext2D) {
-    // Draw trail
     ctx.save();
     this.trail.forEach((t) => {
       ctx.globalAlpha = t.alpha;
@@ -139,7 +137,6 @@ class Rocket {
     });
     ctx.restore();
 
-    // Draw head
     ctx.fillStyle = `hsl(${this.hue}, 100%, 80%)`;
     ctx.beginPath();
     ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
@@ -150,7 +147,7 @@ class Rocket {
 const CountdownDisplay = ({
   timeLeft,
 }: {
-  timeLeft: { h: number; m: number; s: number };
+  timeLeft: { d: number; h: number; m: number; s: number };
 }) => (
   <motion.div
     key="countdown"
@@ -160,11 +157,18 @@ const CountdownDisplay = ({
     className="font-mono text-white"
   >
     <p className="mb-4 text-xl tracking-[0.5em] text-gray-400 uppercase">
-      Waiting for 2026
+      Waiting for 2027
     </p>
     <NumberFlowGroup>
       <div className="text-7xl font-bold tabular-nums md:text-9xl">
+        { timeLeft.d > 0 && (
+            <NumberFlow
+              trend={-1}
+              value={timeLeft.d}
+            />
+        )}
         <NumberFlow
+          prefix=":"
           trend={-1}
           value={timeLeft.h}
           format={{ minimumIntegerDigits: 2 }}
@@ -302,13 +306,14 @@ const NewYearMessage = ({ showWishes }: { showWishes: boolean }) => {
 };
 
 export default function NewYearTimePage() {
-  const target = new Date("2026-01-01T00:00:00").getTime();
+  const target = new Date("2027-01-01T00:00:00").getTime();
 
   const computeTimeLeft = (targetTime: number) => {
     const now = Date.now();
     const diff = Math.max(0, targetTime - now);
     const totalSeconds = Math.ceil(diff / 1000);
     return {
+      d: Math.floor(totalSeconds / 86400),
       h: Math.floor((totalSeconds / 3600) % 24),
       m: Math.floor((totalSeconds / 60) % 60),
       s: totalSeconds % 60,
@@ -346,12 +351,13 @@ export default function NewYearTimePage() {
           setIsNewYear(true);
           setShowMessage(true);
           startFireworks();
-          setTimeLeft({ h: 0, m: 0, s: 0 });
+          setTimeLeft({ d:0, h: 0, m: 0, s: 0 });
           setTimeout(() => setShowMessage(false), 459000);
         }
       } else {
         const totalSeconds = Math.ceil(diff / 1000);
         setTimeLeft({
+          d: Math.floor(totalSeconds / 86400),
           h: Math.floor((totalSeconds / 3600) % 24),
           m: Math.floor((totalSeconds / 60) % 60),
           s: totalSeconds % 60,
