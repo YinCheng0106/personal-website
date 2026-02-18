@@ -6,7 +6,7 @@ import {
 } from "@/app/fonts";
 import type { Metadata } from "next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/next";
 import { ThemeProvider } from "@/components/app/theme-provider";
 
 export const metadata: Metadata = {
@@ -15,6 +15,7 @@ export const metadata: Metadata = {
     template: "%s | YinCheng",
   },
   description: "Personal website of YinCheng",
+  publisher: "YinCheng",
   openGraph: {
     title: "YinCheng",
     description: "Personal website of YinCheng",
@@ -36,7 +37,7 @@ export const metadata: Metadata = {
     title: "YinCheng",
     description: "Personal website of YinCheng",
     images: ["https://yincheng.app/api/og"],
-  }
+  },
 };
 
 export default function RootLayout({
