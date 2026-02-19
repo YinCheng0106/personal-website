@@ -27,6 +27,7 @@ export default function LinkPage() {
       <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
+        viewport={{ once: true }}
         className="my-8 flex w-full flex-col items-center gap-4"
       >
         <div className="relative flex items-center justify-center">
@@ -53,10 +54,11 @@ export default function LinkPage() {
       <div className="flex w-full flex-col items-center">
         {links.map((link) => (
           <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            initial={{ opacity: 0, y: 20 }}
+            viewport={{ once: true }}
+            whileInView={{ opacity: 1, y: 0 }}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
             key={link.href}
             className="w-full"
           >
