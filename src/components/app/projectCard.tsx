@@ -11,14 +11,14 @@ import {
 import { CodeBadge } from "@/components/app/codeBadge";
 import { Badge } from "@/components/ui/badge";
 import { Icon } from "@iconify-icon/react";
-import { Project } from "@/lib/projects";
 import { motion } from "motion/react"
+import type { Project } from "@/lib/projects";
 
-interface ProjectCardProps {
+interface Props {
   project: Project;
 }
 
-export function ProjectCard({ project }: ProjectCardProps) {
+export function ProjectCard({ project }: Props) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }}
@@ -47,7 +47,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
               {project.description}
             </CardDescription>
           </CardHeader>
-  
+
           <CardContent className="mt-auto pt-4">
             <div className="flex flex-wrap items-center gap-3 text-xs">
               {project.language && (

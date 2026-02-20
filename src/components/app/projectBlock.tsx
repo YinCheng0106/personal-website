@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { motion } from "motion/react";
 import { Icon } from "@iconify-icon/react";
 import { Badge } from "@/components/ui/badge";
 
@@ -23,7 +24,13 @@ const typeIcon: Record<string, string> = {
 
 export function ProjectBlock({ type, logo, title, description, link }: Props) {
   return (
-    <div className="group">
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      viewport={{ once: true }}
+      className="group"
+    >
       <Link
         href={link}
         target="_self"
@@ -72,6 +79,6 @@ export function ProjectBlock({ type, logo, title, description, link }: Props) {
           </div>
         </div>
       </Link>
-    </div>
+    </motion.div>
   );
 }

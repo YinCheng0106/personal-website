@@ -15,6 +15,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+
+const contactLinks: { href: string; label: string, icon: string }[] = [
+  { href: "https://www.instagram.com/_yincheng_", label: "Instagram", icon: "ri:instagram-line" },
+  { href: "https://www.threads.com/@_yincheng_", label: "Threads", icon: "ri:threads-fill" },
+  { href: "https://x.com/Yin_Cheng0106", label: "X", icon: "ri:twitter-x-line" },
+  { href: "https://www.linkedin.com/in/yin-cheng-wen-94b18a27a/", label: "LinkedIn", icon: "ri:linkedin-box-fill" },
+  { href: "https://github.com/YinCheng0106", label: "GitHub", icon: "mdi:github" },
+]
 
 export function AboutContent() {
   return (
@@ -97,7 +110,7 @@ export function AboutContent() {
                 <CardContent>
                   <p className={`text-muted-foreground text-lg`}>
                     前端框架是我最熟悉的領域，尤其是 React 和
-                    Next.js。我喜歡使用這些工具來構建高效、可維護的用戶界面，並且不斷學習新的前端技術以提升我的技能
+                    Next.js。我喜歡使用這些工具來構建高效、可維護的用戶界面，並且不斷學習新的前端技術以提升我的技能。像本網站就是利用Next.js加上Tailwind CSS開發的
                   </p>
                 </CardContent>
               </Card>
@@ -150,7 +163,7 @@ export function AboutContent() {
                 <CardContent>
                   <p className={`text-muted-foreground text-lg`}>
                     在工具開發方面，為了解決其他開發項目的問題，所以開發了一個iso-cuntries-utils，解決了國家代碼的問題。
-                    還有開發VSCode Extension，ErrTracker，可以追蹤當日的所有程式錯誤並且記錄。
+                    還有開發VSCode Extension，ErrTracker，可以追蹤當日的所有程式錯誤並且記錄
                   </p>
                 </CardContent>
               </Card>
@@ -186,76 +199,27 @@ export function AboutContent() {
         <section>
           <SectionTitle title="聯絡" />
           <div className="flex items-center justify-center space-x-4">
-            <motion.a
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              viewport={{ once: true }}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              href="https://www.instagram.com/_yincheng_"
-              rel="noopener noreferrer"
-              target="_blank"
-              className="text-2xl link"
-            >
-              <Icon icon="ri:instagram-line" size={64}/>
-            </motion.a>
-            <motion.a
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              viewport={{ once: true }}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              href="https://www.threads.com/@_yincheng_"
-              rel="noopener noreferrer"
-              target="_blank"
-              className="text-2xl link"
-            >
-              <Icon icon="ri:threads-fill" size={64}/>
-            </motion.a>
-            <motion.a
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              viewport={{ once: true }}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              href="https://x.com/Yin_Cheng0106"
-              rel="noopener noreferrer"
-              target="_blank"
-              className="text-2xl link"
-            >
-              <Icon icon="ri:twitter-x-line" size={64}/>
-            </motion.a>
-            <motion.a
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              viewport={{ once: true }}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              href="https://www.linkedin.com/in/yin-cheng-wen-94b18a27a/"
-              rel="noopener noreferrer"
-              target="_blank"
-              className="text-2xl link"
-            >
-              <Icon icon="ri:linkedin-box-fill" size={64}/>
-            </motion.a>
-            <motion.a
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              viewport={{ once: true }}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              href="https://github.com/YinCheng0106"
-              rel="noopener noreferrer"
-              target="_blank"
-              className="text-2xl link"
-            >
-              <Icon icon="ri:github-fill" size={64}/>
-            </motion.a>
+            {contactLinks.map((link) => (
+              <Tooltip key={link.href}>
+                <TooltipTrigger asChild>
+                  <motion.a
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                    viewport={{ once: true }}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    href={link.href}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    className="text-2xl link"
+                  >
+                    <Icon icon={link.icon} size={64}/>
+                  </motion.a>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{link.label}</TooltipContent>
+              </Tooltip>
+            ))}
           </div>
         </section>
       </div>
