@@ -188,7 +188,7 @@ export function AboutContent() {
                 </CardHeader>
                 <CardContent>
                   <p className={`text-muted-foreground text-lg`}>
-                    在機器人方面，我有開發一個名為「<Link href="/bot" className="link">YINLA</Link>」的 Discord 機器人，
+                    在機器人方面，我有開發一個名為「<Link href="https://bot.yincheng.app" className="link">YINLA</Link>」的 Discord 機器人，
                     擁有翻譯、加入通知、中華職棒賽程資訊、天氣資訊、地震報告(含推播功能)、中油油價等等功能，並且持續開發中。
                   </p>
                 </CardContent>
