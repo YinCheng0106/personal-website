@@ -21,14 +21,15 @@ interface Props {
 export function ProjectCard({ project }: Props) {
   return (
     <motion.div
+      className="h-full"
       initial={{ opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       viewport={{ once: true }}
     >
-      <Card className="group flex h-full flex-col overflow-hidden transition-all duration-150 hover:scale-105 hover:shadow-lg">
-        <Link href={`/projects/${project.slug}`} className="flex flex-1 flex-col">
-          <CardHeader className="flex-1 space-y-3 pb-4">
+      <Link href={`/projects/${project.slug}`} className="flex h-full flex-col">
+        <Card className="group flex h-full flex-col overflow-hidden transition-all duration-150 hover:scale-105 hover:shadow-lg">
+          <CardHeader className="space-y-3 pb-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Icon icon="iconoir:repository" />
@@ -67,8 +68,8 @@ export function ProjectCard({ project }: Props) {
               )}
             </div>
           </CardContent>
-        </Link>
-      </Card>
+        </Card>
+      </Link>
     </motion.div>
   );
 }
