@@ -103,9 +103,7 @@ export default async function ProjectPage({ params }: Props) {
           </div>
         </div>
 
-        {/* GitHub Stats and Links */}
         <div className="flex flex-col items-end">
-          {/* GitHub Stats */}
           <div className="flex items-center gap-4">
             {githubStats?.stars !== undefined && (
               <div className="text-muted-foreground flex items-center gap-1">
@@ -127,7 +125,6 @@ export default async function ProjectPage({ params }: Props) {
             )}
           </div>
 
-          {/* GitHub Link and License */}
           <div className="flex gap-2">
             <Link
               href={`https://github.com/${project.github}`}
@@ -172,7 +169,6 @@ export default async function ProjectPage({ params }: Props) {
 
       <main className="mt-8 grid w-full gap-8 md:grid-cols-4">
         <div className="md:col-span-3">
-          {/* README Content */}
           <div className="prose dark:prose-invert max-w-none">
             {githubStats?.readme?.content ? (
               <MDXRemote
@@ -193,7 +189,6 @@ export default async function ProjectPage({ params }: Props) {
           </div>
         </div>
         <div className="divide-accent mb-auto grid grid-cols-1 divide-y md:col-span-1">
-          {/* GitHub Project Details */}
           <div className="flex flex-col gap-2 py-4">
             <h2 className="text-lg font-semibold">簡介</h2>
             <div className="mt-2 flex flex-wrap gap-2">
@@ -256,7 +251,6 @@ export default async function ProjectPage({ params }: Props) {
             </div>
           </div>
 
-          {/* Contributors */}
           <div className="flex flex-col gap-2 py-4">
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-semibold">貢獻者</h2>
@@ -293,7 +287,6 @@ export default async function ProjectPage({ params }: Props) {
             </div>
           </div>
 
-          {/* Languages */}
           <div className="flex flex-col gap-2 py-4">
             <h2 className="text-lg font-semibold">語言</h2>
             <div className="mt-2 flex flex-wrap gap-2">

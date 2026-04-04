@@ -27,7 +27,7 @@ export async function ProjectSection() {
         />
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {featuredProjects.map((project) => (
+          {featuredProjects.sort((a, b) => a.title.localeCompare(b.title)).map((project) => (
             <ProjectCard key={project.slug} project={project} />
           ))}
         </div>

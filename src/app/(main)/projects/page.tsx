@@ -42,7 +42,7 @@ export default function ProjectsPage() {
         </p>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
-          {projects.map((project: Project) => (
+          {projects.sort((a, b) => a.title.localeCompare(b.title)).map((project: Project) => (
             <ProjectBlock
               key={project.slug}
               type={project.type}
