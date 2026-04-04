@@ -47,15 +47,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: project.title,
     description:
-      githubStats?.description === null
+      githubStats?.github_description === null
         ? project.description
-        : githubStats?.description,
+        : githubStats?.github_description,
     openGraph: {
       title: project.title,
       description:
-        githubStats?.description === null
+        githubStats?.github_description === null
           ? project.description
-          : githubStats?.description,
+          : githubStats?.github_description,
       url: `https://yincheng.app/projects/${slug}`,
       type: "website",
       images: [
@@ -71,9 +71,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: "summary_large_image",
       title: project.title,
       description:
-        githubStats?.description === null
+        githubStats?.github_description === null
           ? project.description
-          : githubStats?.description,
+          : githubStats?.github_description,
       images: [`https://yincheng.app/projects/${slug}/og`],
     },
   };
@@ -104,7 +104,11 @@ export default async function ProjectPage({ params }: Props) {
           />
           <div className="flex flex-col">
             <h1 className="text-3xl font-bold">{project.title}</h1>
-            <p className="text-gray-600">{project.slug}</p>
+            {
+              project.slug != project.title
+                ? <p className="text-gray-600">{project.slug}</p>
+                : null
+            }
           </div>
         </div>
 
@@ -202,11 +206,11 @@ export default async function ProjectPage({ params }: Props) {
           <div className="flex flex-col gap-2 py-4">
             <h2 className="text-lg font-semibold">簡介</h2>
             <div className="mt-2 flex flex-wrap gap-2">
-              {githubStats?.description ? (
-                <p>{githubStats.description}</p>
-              ) : (
-                <p className="text-muted-foreground">無簡介</p>
-              )}
+              {project?.description
+                  ? <p>{project.description}</p>
+                  : githubStats?.github_description
+                  ? <p>{githubStats.github_description}</p>
+                  : <p className="text-muted-foreground">無簡介</p>}
             </div>
           </div>
 

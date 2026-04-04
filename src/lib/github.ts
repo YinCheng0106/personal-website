@@ -140,7 +140,7 @@ export async function getGitHubStats(repo: string) {
       stars: data.stargazers_count,
       watchers: data.watchers_count,
       forks: data.forks_count,
-      description: data.description,
+      github_description: data.description,
       created_at: data.created_at,
       updated_at: data.updated_at,
       pushed_at: data.pushed_at,
