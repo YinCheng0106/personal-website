@@ -95,7 +95,7 @@ export function AboutContent() {
               viewport={{ once: true }}
             >
               <Card
-                className={`${notoSerifTC.className} border-muted shadow md:col-span-1`}
+                className={`${notoSerifTC.className} border-muted shadow md:col-span-1 h-full`}
               >
                 <CardHeader className="flex flex-inline justify-between">
                   <CardTitle className={`text-2xl font-semibold`}>
@@ -122,7 +122,7 @@ export function AboutContent() {
               viewport={{ once: true }}
             >
               <Card
-                className={`${notoSerifTC.className} border-muted shadow md:col-span-1`}
+                className={`${notoSerifTC.className} border-muted shadow md:col-span-1 h-full`}
               >
                 <CardHeader className="flex flex-inline justify-between">
                   <CardTitle className={`text-2xl font-semibold`}>
@@ -148,7 +148,7 @@ export function AboutContent() {
               viewport={{ once: true }}
             >
               <Card
-                className={`${notoSerifTC.className} border-muted shadow md:col-span-1`}
+                className={`${notoSerifTC.className} border-muted shadow md:col-span-1 h-full`}
               >
                 <CardHeader className="flex flex-inline justify-between">
                   <CardTitle className={`text-2xl font-semibold`}>
@@ -175,7 +175,7 @@ export function AboutContent() {
               viewport={{ once: true }}
             >
               <Card
-                className={`${notoSerifTC.className} border-muted shadow md:col-span-1`}
+                className={`${notoSerifTC.className} border-muted shadow md:col-span-1 h-full`}
               >
                 <CardHeader className="flex flex-inline justify-between">
                   <CardTitle className={`text-2xl font-semibold`}>

@@ -80,7 +80,7 @@ export default function AppHeader() {
         </Tooltip>
 
         <Link
-          className="link hidden md:block"
+          className="link"
           href="https://www.threads.com/@_yincheng_"
           target="_blank"
         >
