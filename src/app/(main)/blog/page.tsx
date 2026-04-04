@@ -35,8 +35,8 @@ export default function BlogPage() {
   const posts = getAllPosts();
 
   return (
-    <div className="container mx-auto px-6 py-16">
-      <SectionTitle title="部落格" />
+    <div className="container mx-auto px-4 py-8">
+      <SectionTitle title="部落格" subtitle="文章都在這" />
 
       {posts.length === 0 ? (
         <p className="text-muted-foreground justify-center text-center">

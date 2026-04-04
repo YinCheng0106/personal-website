@@ -31,7 +31,7 @@ const contactLinks: { href: string; label: string, icon: string }[] = [
 
 export function AboutContent() {
   return (
-    <div className="min-h-screen px-4 py-0 select-none md:py-20">
+    <div className="min-h-screen px-4 py-0 select-none md:py-8">
       <div className="mx-auto max-w-5xl space-y-20">
         <section className="grid items-center gap-8 md:grid-cols-2">
           <motion.div
