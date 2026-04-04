@@ -1094,12 +1094,12 @@ export default function NewYearTimePage() {
       }}
     >
       {/* Canvas for stars, shooting stars, and fireworks */}
-      <canvas ref={canvasRef} className="absolute inset-0 z-[1]" />
+      <canvas ref={canvasRef} className="absolute inset-0 z-1" />
 
       {/* Sun */}
       {skyPhase.sun && !fireworksActive && (
         <div
-          className="pointer-events-none absolute z-[2] transition-all duration-[60s]"
+          className="pointer-events-none absolute z-2 transition-all duration-[60s]"
           style={{
             left: `${sunPos.x}%`,
             top: `${sunPos.y}%`,
@@ -1140,7 +1140,7 @@ export default function NewYearTimePage() {
       {/* Moon */}
       {skyPhase.moon && !fireworksActive && (
         <div
-          className="pointer-events-none absolute z-[2] transition-all duration-[60s]"
+          className="pointer-events-none absolute z-2 transition-all duration-[60s]"
           style={{
             left: `${moonPos.x}%`,
             top: `${moonPos.y}%`,
@@ -1212,7 +1212,7 @@ export default function NewYearTimePage() {
         clouds.map((cloud, i) => (
           <div
             key={i}
-            className="pointer-events-none absolute z-[3]"
+            className="pointer-events-none absolute z-3"
             style={{
               top: cloud.top,
               animation: `cloudDrift ${cloud.duration}s linear infinite`,
@@ -1227,7 +1227,7 @@ export default function NewYearTimePage() {
       {/* Horizon glow for sunset */}
       {!fireworksActive && (
         <div
-          className="pointer-events-none absolute right-0 bottom-0 left-0 z-[2]"
+          className="pointer-events-none absolute right-0 bottom-0 left-0 z-2"
           style={{
             height: "30%",
             background: isDark
