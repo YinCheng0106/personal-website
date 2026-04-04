@@ -87,7 +87,6 @@ export default async function ProjectPage({ params }: Props) {
   return (
     <div className="container mx-auto px-4 py-8">
       <header className="flex items-center justify-between border-b pb-4">
-        {/* Project Title and Type */}
         <div className="flex items-center gap-4">
           <Icon
             icon={typeIcon[project.type] || "iconoir:repository"}
@@ -199,14 +198,13 @@ export default async function ProjectPage({ params }: Props) {
             <h2 className="text-lg font-semibold">簡介</h2>
             <div className="mt-2 flex flex-wrap gap-2">
               {project?.description
-                  ? <p>{project.description}</p>
-                  : githubStats?.github_description
+                ? <p>{project.description}</p>
+                : githubStats?.github_description
                   ? <p>{githubStats.github_description}</p>
                   : <p className="text-muted-foreground">無簡介</p>}
             </div>
           </div>
 
-          {/* Topics */}
           <div className="flex flex-col gap-2 py-4">
             <h2 className="text-lg font-semibold">主題</h2>
             <div className="mt-2 flex flex-wrap gap-2">
@@ -222,7 +220,6 @@ export default async function ProjectPage({ params }: Props) {
             </div>
           </div>
 
-          {/* Releases */}
           <div className="flex flex-col gap-2 py-4">
             <h2 className="text-lg font-semibold">版本</h2>
             <div className="mt-2 flex flex-wrap">
@@ -236,7 +233,7 @@ export default async function ProjectPage({ params }: Props) {
                   <div className="flex items-center gap-2">
                     <Icon
                       icon="mdi:tag-outline"
-                      className="group-hover:text-accent link text-green-500"
+                      className="group-hover:text-green-500/20 link text-green-500"
                       width="24"
                     />
                     <div className="flex flex-col items-start">
