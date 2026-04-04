@@ -14,13 +14,13 @@ export type Project = {
 };
 
 export const typeIcon: Record<string, string> = {
-  website: "iconoir:web-window",
+  website: "mdi:world-wide-web",
   bot: "mdi:robot-outline",
   app: "mdi:cellphone-iphone",
   tools: "mdi:tools",
   library: "mdi:library-books",
   package: "mdi:package-variant-closed",
-  api: "mdi:api",
+  api: "mdi:gear",
 };
 
 export const projects: Project[] = [
