@@ -8,7 +8,7 @@ import { zhTW } from "date-fns/locale";
 import remarkGfm from "remark-gfm";
 
 import { getGitHubStats, Contributor } from "@/lib/github";
-import { projects } from "@/lib/projects";
+import { projects, typeIcon } from "@/lib/projects";
 import type { Project } from "@/lib/projects";
 
 import { Badge } from "@/components/ui/badge";
@@ -18,14 +18,6 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 
 type Props = {
   params: Promise<{ slug: string }>;
-};
-
-const typeIcon: Record<string, string> = {
-  website: "iconoir:web-window",
-  bot: "mdi:robot-outline",
-  app: "mdi:cellphone-iphone",
-  tools: "mdi:tools",
-  library: "mdi:library-books",
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { motion } from "motion/react";
 import { Icon } from "@iconify-icon/react";
 import { Badge } from "@/components/ui/badge";
+import { typeIcon } from "@/lib/projects";
 
 type Props = {
   type: string;
@@ -12,14 +13,6 @@ type Props = {
   title: string;
   description: string;
   link: string;
-};
-
-const typeIcon: Record<string, string> = {
-  website: "iconoir:web-window",
-  bot: "mdi:robot-outline",
-  app: "mdi:cellphone-iphone",
-  tools: "mdi:tools",
-  library: "mdi:library-books",
 };
 
 export function ProjectBlock({ type, logo, title, description, link }: Props) {
