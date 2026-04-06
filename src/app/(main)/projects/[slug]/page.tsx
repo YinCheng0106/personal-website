@@ -161,14 +161,16 @@ export default async function ProjectPage({ params }: Props) {
               className="link flex items-center gap-1"
             >
               <Icon icon="mdi:web" />
-              {githubStats.homepage.replace(/^https?:\/\//, "")}
+              <span className="line-clamp-1">
+                {githubStats.homepage.replace(/^https?:\/\//, "")}
+              </span>
             </Link>
           )}
         </div>
       </header>
 
       <main className="mt-8 grid w-full gap-8 md:grid-cols-4">
-        <div className="md:col-span-3">
+        <div className="min-w-0 md:col-span-3">
           <div className="prose dark:prose-invert prose-pre:bg-transparent prose-code:before:content-none prose-code:after:content-none max-w-none">
             {githubStats?.readme?.content ? (
               <MDXRemote

@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { Callout } from "@/components/mdx/callout";
 import { Code } from "@/components/mdx/code";
+import { CodeBlock } from "@/components/mdx/code-block";
 
 export function MDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -34,11 +35,7 @@ export function MDXComponents(components: MDXComponents): MDXComponents {
       </Link>
     ),
     Callout: (props) => <Callout {...props} />,
-    pre: ({ children }) => (
-      <pre className="overflow-x-auto rounded-lg border bg-[#f6f8fa] p-4 dark:bg-[#161b22]">
-        {children}
-      </pre>
-    ),
+    pre: ({ children }) => <CodeBlock>{children}</CodeBlock>,
     code: (props) => <Code {...props} />,
   } satisfies MDXComponents;
 }
