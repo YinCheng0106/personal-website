@@ -169,7 +169,7 @@ export default async function ProjectPage({ params }: Props) {
 
       <main className="mt-8 grid w-full gap-8 md:grid-cols-4">
         <div className="md:col-span-3">
-          <div className="prose dark:prose-invert max-w-none">
+          <div className="prose dark:prose-invert prose-pre:bg-transparent prose-code:before:content-none prose-code:after:content-none max-w-none">
             {githubStats?.readme?.content ? (
               <MDXRemote
                 source={Buffer.from(

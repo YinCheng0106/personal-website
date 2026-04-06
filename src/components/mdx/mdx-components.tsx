@@ -34,7 +34,11 @@ export function MDXComponents(components: MDXComponents): MDXComponents {
       </Link>
     ),
     Callout: (props) => <Callout {...props} />,
-    pre: ({ children }) => <pre>{children}</pre>,
+    pre: ({ children }) => (
+      <pre className="overflow-x-auto rounded-lg border bg-[#f6f8fa] p-4 dark:bg-[#161b22]">
+        {children}
+      </pre>
+    ),
     code: (props) => <Code {...props} />,
   } satisfies MDXComponents;
 }
