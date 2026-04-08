@@ -103,8 +103,8 @@ export default async function ProjectPage({ params }: Props) {
             }
           </div>
         </div>
-        
-        <div className="flex flex-col md:items-end mt-2">
+
+        <div className="flex flex-col md:items-end mt-2 md:mt-0">
           {/* GitHub Stats */}
           <div className="flex md:flex-col justify-between md:items-end">
             <div className="flex items-center gap-4">
@@ -155,14 +155,14 @@ export default async function ProjectPage({ params }: Props) {
                 </div>
               )}
             </div>
-          </div> 
+          </div>
 
           {githubStats?.homepage && (
             <Link
               href={githubStats.homepage}
               target="_blank"
               rel="noopener noreferrer"
-              className="link flex items-center gap-1"
+              className="link flex items-center gap-1 "
             >
               <Icon icon="mdi:web" />
               <span className="line-clamp-1">
@@ -211,7 +211,7 @@ export default async function ProjectPage({ params }: Props) {
             <div className="mt-2 flex flex-wrap gap-2">
               {githubStats?.topics.length ? (
                 githubStats.topics.map((topic: string) => (
-                  <Badge key={topic} variant="outline" className="px-2">
+                  <Badge key={topic} variant="outline" className="px-2 hover:bg-accent transition-colors">
                     {topic}
                   </Badge>
                 ))
