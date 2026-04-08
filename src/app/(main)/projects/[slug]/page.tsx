@@ -86,7 +86,8 @@ export default async function ProjectPage({ params }: Props) {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <header className="flex items-center justify-between border-b pb-4">
+      <header className="grid grid-cols-1 md:flex items-center justify-between border-b pb-4">
+        {/* Project Tilte & Slug */}
         <div className="flex items-center gap-4">
           <Icon
             icon={typeIcon[project.type] || "iconoir:repository"}
@@ -102,56 +103,59 @@ export default async function ProjectPage({ params }: Props) {
             }
           </div>
         </div>
-
-        <div className="flex flex-col items-end">
-          <div className="flex items-center gap-4">
-            {githubStats?.stars !== undefined && (
-              <div className="text-muted-foreground flex items-center gap-1">
-                <Icon icon="mdi:star-outline" />
-                {githubStats.stars}
-              </div>
-            )}
-            {githubStats?.forks !== undefined && (
-              <div className="text-muted-foreground flex items-center gap-1">
-                <Icon icon="mdi:source-fork" />
-                {githubStats.forks}
-              </div>
-            )}
-            {githubStats?.watchers !== undefined && (
-              <div className="text-muted-foreground flex items-center gap-1">
-                <Icon icon="mdi:eye-outline" />
-                {githubStats.watchers}
-              </div>
-            )}
-          </div>
-
-          <div className="flex gap-2">
-            <Link
-              href={`https://github.com/${project.github}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="link flex items-center gap-1"
-            >
-              <Icon icon="ri:github-line" />
-              GitHub
-            </Link>
-            {githubStats?.license?.name && (
-              <div className="text-muted-foreground flex items-center gap-1">
-                <Link
-                  href={
-                    `https://choosealicense.com/licenses/${githubStats.license.key}` ||
-                    "#"
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="link flex items-center gap-1"
-                >
-                  <Icon icon="mdi:scale-balance" />
-                  {githubStats.license.spdx_id}
-                </Link>
-              </div>
-            )}
-          </div>
+        
+        <div className="flex flex-col md:items-end mt-2">
+          {/* GitHub Stats */}
+          <div className="flex md:flex-col justify-between md:items-end">
+            <div className="flex items-center gap-4">
+              {githubStats?.stars !== undefined && (
+                <div className="text-muted-foreground flex items-center gap-1">
+                  <Icon icon="mdi:star-outline" />
+                  {githubStats.stars}
+                </div>
+              )}
+              {githubStats?.forks !== undefined && (
+                <div className="text-muted-foreground flex items-center gap-1">
+                  <Icon icon="mdi:source-fork" />
+                  {githubStats.forks}
+                </div>
+              )}
+              {githubStats?.watchers !== undefined && (
+                <div className="text-muted-foreground flex items-center gap-1">
+                  <Icon icon="mdi:eye-outline" />
+                  {githubStats.watchers}
+                </div>
+              )}
+            </div>
+            {/* GitHub License */}
+            <div className="flex items-center gap-2">
+              <Link
+                href={`https://github.com/${project.github}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="link flex items-center gap-1"
+              >
+                <Icon icon="ri:github-line" />
+                GitHub
+              </Link>
+              {githubStats?.license?.name && (
+                <div className="text-muted-foreground flex items-center gap-1">
+                  <Link
+                    href={
+                      `https://choosealicense.com/licenses/${githubStats.license.key}` ||
+                      "#"
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="link flex items-center gap-1"
+                  >
+                    <Icon icon="mdi:scale-balance" />
+                    {githubStats.license.spdx_id}
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div> 
 
           {githubStats?.homepage && (
             <Link
