@@ -35,6 +35,11 @@ export function MDXComponents(components: MDXComponents): MDXComponents {
       </Link>
     ),
     Callout: (props) => <Callout {...props} />,
+    table: ({ children }) => (
+      <div className="my-4 overflow-x-auto">
+        <table className="w-full border-collapse">{children}</table>
+      </div>
+    ),
     pre: ({ children }) => <CodeBlock>{children}</CodeBlock>,
     code: (props) => <Code {...props} />,
   } satisfies MDXComponents;
