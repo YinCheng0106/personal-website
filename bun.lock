@@ -31,6 +31,7 @@
         "rss-parser": "^3.13.0",
         "shiki": "^3.15.0",
         "tailwind-merge": "^3.4.0",
+        "takumi-js": "^0.0.0",
       },
       "devDependencies": {
         "@iconify-icon/react": "^3.0.3",
@@ -1228,6 +1229,8 @@
     "tailwind-merge": ["tailwind-merge@3.4.0", "", {}, "sha512-uSaO4gnW+b3Y2aWoWfFpX62vn2sR3skfhbjsEnaBI81WD1wBLlHZe5sWf0AqjksNdYTbGBEd0UasQMT3SNV15g=="],
 
     "tailwindcss": ["tailwindcss@4.1.17", "", {}, "sha512-j9Ee2YjuQqYT9bbRTfTZht9W/ytp5H+jJpZKiYdP/bpnXARAuELt9ofP0lPnmHjbga7SNQIxdTAXCmtKVYjN+Q=="],
+
+    "takumi-js": ["takumi-js@0.0.0", "", {}, "sha512-4da27LpT/AnmHsckqYZUqJDMlJ17yYUB0qJAJt3QkNntRYTVw9qDQ+4z3C4NKWDhzj15LoM+6OfPsx5RZuhsew=="],
 
     "tapable": ["tapable@2.3.0", "", {}, "sha512-g9ljZiwki/LfxmQADO3dEY1CbpmXT5Hm2fJ+QaGKwSXUylMybePR7/67YW7jOrrvjEgL1Fmz5kzyAjWVWLlucg=="],
 
