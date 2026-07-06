@@ -1,0 +1,96 @@
+---
+title: "資料庫設計範例：NorthWind Order 系統"
+date: "2025-04-10"
+category: "技術文章"
+description: "介紹 NorthWind Order 系統的資料庫設計與結構"
+tags: ["Database", "Design", "NorthWind", "SQL"]
+---
+
+## 員工資料表
+
+| 欄位名稱                 | 資料型態 (Type) | 長度 | 屬性 / 備註           |
+| ------------------------ | --------------- | ---- | --------------------- |
+| ID                       | INT             | -    | **PK，自動遞增**      |
+| 姓名 (Name)              | VARCHAR         | 100  | 員工姓名              |
+| Email                    | VARCHAR         | 40   | 員工信箱              |
+| 電話號碼 (Phone)         | VARCHAR         | 15   | 聯絡電話              |
+| 帳號建立日期 (CreatedAt) | DATETIME        | -    | 建立時間              |
+| 帳號更新日期 (UpdatedAt) | DATETIME        | -    | 最後更新時間          |
+| 公司ID (CompanyID)       | INT             | -    | **FK → Companies.ID** |
+
+
+## 公司資料表
+
+| 欄位名稱               | 資料型態 (Type) | 長度 | 屬性 / 備註          |
+| ---------------------- | --------------- | ---- | -------------------- |
+| ID                     | INT             | -    | **PK，自動遞增**     |
+| 公司名稱 (CompanyName) | VARCHAR         | 80   | 公司名稱             |
+| Email                  | VARCHAR         | 40   | 公司電子郵件         |
+| 建立日期 (CreatedAt)   | DATETIME       | -    | 建立時間（自動填入） |
+| 更新日期 (UpdatedAt)   | DATETIME        | -    | 最後更新時間         |
+
+
+## 訂單資料表
+
+| 欄位名稱             | 資料型態 (Type) | 長度 | 屬性 / 備註                       |
+| -------------------- | --------------- | ---- | --------------------------------- |
+| ID                   | INT             | -    | **PK，自動遞增**                  |
+| 筆記 (Notes)         | TEXT            | -    | 備註欄                            |
+| 訂購日期 (OrderDate) | DATETIME       | -    | 下單日期                          |
+| 更新日期 (UpdatedAt) | DATETIME       | -    | 更新日期                          |
+| 付費日期 (PaidDate)  | DATETIME        | -    | 支付日期                          |
+| 訂單狀態 (Status)    | ENUM            | -    | New / Closed / Invoiced / Shipped |
+| 公司ID (CompanyID)   | INT             | -    | **FK → Companies.ID**             |
+| 員工ID (EmployeeID)  | INT             | -    | **FK → Employees.ID**             |
+
+
+## 訂單明細表
+
+| 欄位名稱           | 資料型態 (Type) | 長度   | 屬性 / 備註          |
+| ------------------ | --------------- | ------ | -------------------- |
+| ID                 | INT             | -      | **PK，自動遞增**     |
+| 訂單ID (OrderID)   | INT             | -      | **FK → Orders.ID**   |
+| 產品ID (ProductID) | INT             | -      | **FK → Products.ID** |
+| 數量 (Quantity)    | INT             | -      | 購買數量             |
+| 單價 (UnitPrice)   | DECIMAL         | (10,2) | 單價（快照當時價格） |
+| 小計 (Subtotal)    | DECIMAL         | (10,2) | 數量 × 單價          |
+
+```
+CREATE TABLE Orders (
+    ID INT PRIMARY KEY AUTO_INCREMENT,
+    Notes TEXT,
+    OrderDate DATETIME,
+    UpdatedAt DATETIME,
+    PaidDate DATETIME,
+    Status ENUM('New', 'Closed', 'Invoiced', 'Shipped'),
+    CompanyID INT,
+    EmployeeID INT,
+    FOREIGN KEY (CompanyID) REFERENCES Companies(ID),
+    FOREIGN KEY (EmployeeID) REFERENCES Employees(ID)
+);
+```
+
+## 產品資料表
+
+| 欄位名稱               | 資料型態 (Type) | 長度   | 屬性 / 備註          |
+| ---------------------- | --------------- | ------ | -------------------- |
+| ID                     | INT             | -      | **PK，自動遞增**     |
+| 產品名稱 (ProductName) | VARCHAR         | 150    | 產品名稱             |
+| 建立日期 (CreatedAt)   | DATETIME       | -      | 建立日期（自動填入） |
+| 更新日期 (UpdatedAt)   | DATETIME       | -      | 更新日期             |
+| 單價 (UnitPrice)       | DECIMAL         | (10,2) | 產品單價             |
+| 擴充 (Description)     | TEXT            | -      | 補充資訊或描述       |
+
+| Wrestler                | Origin       | Finisher           |
+| ----------------------- | ------------ | ------------------ |
+| Bret "The Hitman" Hart  | Calgary, AB  | Sharpshooter       |
+| Stone Cold Steve Austin | Austin, TX   | Stone Cold Stunner |
+| Randy Savage            | Sarasota, FL | Elbow Drop         |
+| Vader                   | Boulder, CO  | Vader Bomb         |
+| Razor Ramon             | Chuluota, FL | Razor's Edge       |
+
+# [圖](https://dbdiagram.io/d/68e6299ed2b621e422d2189a)
+
+![TypeScript](https://img.shields.io/badge/TypeScript-gray.svg?logo=typescript&style=for-the-badge)
+![Next.js](https://img.shields.io/badge/Nextjs-gray.svg?logo=next.js&style=for-the-badge)
+![GitHub License](https://img.shields.io/github/license/yincheng0106/baseball-scoreboard.svg?style=for-the-badge)

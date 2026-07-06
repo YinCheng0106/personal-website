@@ -5,25 +5,83 @@ import { Callout } from "@/components/mdx/callout";
 import { Code } from "@/components/mdx/code";
 import { CodeBlock } from "@/components/mdx/code-block";
 
+type HeadingTag = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+
+function Heading({
+  as: Tag,
+  className,
+  id,
+  children,
+  anchor = true,
+}: {
+  as: HeadingTag;
+  className: string;
+  id?: string;
+  children?: React.ReactNode;
+  anchor?: boolean;
+}) {
+  return (
+    <Tag id={id} className={`group ${className}`}>
+      {children}
+      {anchor && id ? (
+        <a
+          href={`#${id}`}
+          aria-label="連結到此段落"
+          className="text-muted-foreground hover:text-foreground ml-2 no-underline opacity-0 transition-opacity group-hover:opacity-100"
+        >
+          #
+        </a>
+      ) : null}
+    </Tag>
+  );
+}
+
 export function MDXComponents(components: MDXComponents): MDXComponents {
   return {
-    h1: ({ children }) => (
-      <h1 className="my-4 text-4xl font-bold">{children}</h1>
+    h1: ({ id, children }) => (
+      <Heading
+        as="h1"
+        id={id}
+        anchor={false}
+        className="my-4 text-4xl font-bold"
+      >
+        {children}
+      </Heading>
     ),
-    h2: ({ children }) => (
-      <h2 className="my-4 text-3xl font-bold">{children}</h2>
+    h2: ({ id, children }) => (
+      <Heading as="h2" id={id} className="my-4 text-3xl font-bold">
+        {children}
+      </Heading>
     ),
-    h3: ({ children }) => (
-      <h3 className="my-4 text-2xl font-bold">{children}</h3>
+    h3: ({ id, children }) => (
+      <Heading as="h3" id={id} className="my-4 text-2xl font-bold">
+        {children}
+      </Heading>
     ),
-    h4: ({ children }) => (
-      <h4 className="my-4 text-xl font-bold">{children}</h4>
+    h4: ({ id, children }) => (
+      <Heading as="h4" id={id} className="my-4 text-xl font-bold">
+        {children}
+      </Heading>
     ),
-    h5: ({ children }) => (
-      <h5 className="my-4 text-lg font-bold">{children}</h5>
+    h5: ({ id, children }) => (
+      <Heading
+        as="h5"
+        id={id}
+        anchor={false}
+        className="my-4 text-lg font-bold"
+      >
+        {children}
+      </Heading>
     ),
-    h6: ({ children }) => (
-      <h6 className="my-4 text-base font-bold">{children}</h6>
+    h6: ({ id, children }) => (
+      <Heading
+        as="h6"
+        id={id}
+        anchor={false}
+        className="my-4 text-base font-bold"
+      >
+        {children}
+      </Heading>
     ),
     p: ({ children }) => <p className="my-2 leading-7">{children}</p>,
     a: ({ href, children }) => (
