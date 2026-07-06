@@ -233,7 +233,7 @@ export default async function PostPage({ params }: Props) {
             )}
 
             <section
-              className={`prose md:prose-lg prose-pre:bg-accent prose-table:table-auto dark:prose-invert max-w-dvw`}
+              className={`prose md:prose-lg prose-pre:bg-accent prose-table:table-auto prose-code:before:content-none prose-code:after:content-none dark:prose-invert max-w-dvw`}
             >
               <MDXRemote
                 source={post.content}
