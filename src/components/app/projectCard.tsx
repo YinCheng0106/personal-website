@@ -11,7 +11,7 @@ import {
 import { CodeBadge } from "@/components/app/codeBadge";
 import { Badge } from "@/components/ui/badge";
 import { Icon } from "@iconify-icon/react";
-import { motion } from "motion/react"
+import { motion, useReducedMotion } from "motion/react"
 import type { Project } from "@/lib/projects";
 
 interface Props {
@@ -19,6 +19,8 @@ interface Props {
 }
 
 export function ProjectCard({ project }: Props) {
+  const reduce = useReducedMotion();
+
   return (
     <motion.div
       className="h-full"
@@ -26,9 +28,14 @@ export function ProjectCard({ project }: Props) {
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       viewport={{ once: true }}
+      whileHover={
+        reduce
+          ? undefined
+          : { y: -6, transition: { type: "spring", stiffness: 300, damping: 20 } }
+      }
     >
       <Link href={`/projects/${project.slug}`} className="flex h-full flex-col">
-        <Card className="group flex h-full flex-col overflow-hidden transition-all duration-150 hover:scale-105 hover:shadow-lg">
+        <Card className="group flex h-full flex-col overflow-hidden transition-[box-shadow,border-color] duration-300 hover:border-foreground/20 hover:shadow-lg">
           <CardHeader className="space-y-3 pb-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">

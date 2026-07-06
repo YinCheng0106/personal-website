@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { Icon } from "@iconify-icon/react";
 
 import {
@@ -20,14 +20,21 @@ interface Props {
 }
 
 export function BlobCard({ post }: Props) {
+  const reduce = useReducedMotion();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       viewport={{ once: true }}
+      whileHover={
+        reduce
+          ? undefined
+          : { y: -6, transition: { type: "spring", stiffness: 300, damping: 20 } }
+      }
     >
-      <Card className="group relative flex h-full flex-1 flex-col overflow-hidden transition-shadow hover:shadow-lg">
+      <Card className="group relative flex h-full flex-1 flex-col overflow-hidden transition-[box-shadow,border-color] duration-300 hover:border-foreground/20 hover:shadow-lg">
         {/* 覆蓋整張卡片的連結，讓卡片任意處可點進文章；tag 連結以 z-10 浮於其上 */}
         <Link
           href={`/blog/${post.slug}`}
@@ -35,7 +42,7 @@ export function BlobCard({ post }: Props) {
           className="absolute inset-0 z-0"
         />
         {post.cover && (
-          <div className="relative -mt-6 mb-2 aspect-[16/9] w-full">
+          <div className="relative -mt-6 mb-2 aspect-video w-full">
             <Image
               src={post.cover}
               alt={post.title}

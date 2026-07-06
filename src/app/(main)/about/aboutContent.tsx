@@ -8,6 +8,7 @@ import { notoSerifTC } from "@/app/fonts";
 
 import { SectionTitle } from "@/components/app/sectionTitle";
 import { LogoBadge } from "@/components/app/logoBadge";
+import { Roadmap } from "@/components/app/roadmap";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -195,6 +196,10 @@ export function AboutContent() {
               </Card>
             </motion.div>
           </div>
+        </section>
+        <section>
+          <SectionTitle title="歷程" />
+          <Roadmap />
         </section>
         <section>
           <SectionTitle title="聯絡" />
