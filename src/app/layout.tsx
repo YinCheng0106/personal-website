@@ -8,14 +8,23 @@ import type { Metadata } from "next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 import { ThemeProvider } from "@/components/app/theme-provider";
+import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteConfig.url),
   title: {
     default: "YinCheng",
     template: "%s | YinCheng",
   },
   description: "Personal website of YinCheng",
   publisher: "YinCheng",
+  alternates: {
+    types: {
+      "application/rss+xml": [
+        { url: "/rss.xml", title: siteConfig.blog.title },
+      ],
+    },
+  },
   openGraph: {
     title: "YinCheng",
     description: "Personal website of YinCheng",
