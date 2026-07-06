@@ -1,0 +1,211 @@
+---
+title: "從零打造一個 MDX 技術部落格"
+date: "2026-07-07"
+category: "開發"
+description: "以 Next.js App Router、next-mdx-remote 與 zod，從內容架構、型別驗證到自訂渲染，完整拆解這個部落格背後的實作。"
+tags: ["Next.js", "MDX", "TypeScript", "Blog"]
+---
+
+# {frontmatter.title}
+
+這是這個部落格的第一篇文章。與其寫一篇「Hello World」，我想直接把整個站台的技術決策攤開來談——為什麼選擇 MDX、內容如何被解析與驗證，以及一篇文章從 `.mdx` 檔案到瀏覽器畫面之間到底發生了什麼事。
+
+如果你也打算用 Next.js App Router 搭一個屬於自己的技術部落格，這篇可以當作一份實作藍圖。
+
+## 為什麼是 MDX，而不是 CMS
+
+寫技術文章時，我需要的東西其實很單純：**版本控制、純文字、以及在文章裡直接嵌入互動元件的能力**。
+
+- **Markdown** 讓寫作專注在內容本身，而非排版。
+- **JSX** 讓我在需要時能塞進一個提示框、一段互動範例，甚至一個 React 元件。
+- **Git** 讓每一次修改都有紀錄，也讓「文章」和「程式碼」活在同一套工作流裡。
+
+MDX 正好是這三者的交集——它是 Markdown 的超集，允許在文件中直接使用 JSX。相比之下，傳統 headless CMS 帶來的是額外的服務、資料庫與網路往返；對一個個人部落格而言，這些成本並不划算。
+
+<Callout type="info">
+  這裡選用的是 `next-mdx-remote`，而非編譯期綁定的 `@next/mdx`。前者把「讀取內容」與「渲染」解耦，讓文章可以是外部資料來源（檔案系統、CMS、資料庫），在架構上更有彈性。
+</Callout>
+
+## 技術選型
+
+整個部落格的核心相依套件如下：
+
+| 套件 | 用途 |
+| --- | --- |
+| `next` (App Router) | 框架與路由，透過 RSC 在伺服器端完成大部分渲染 |
+| `next-mdx-remote` | 在伺服器端把 MDX 字串編譯成可渲染的內容 |
+| `gray-matter` | 解析文章開頭的 frontmatter |
+| `zod` | 驗證 frontmatter 的型別與必填欄位 |
+| `remark-gfm` | 支援表格、刪除線等 GitHub 風格 Markdown |
+| `rehype-slug` | 為每個標題自動加上 `id`，供錨點連結使用 |
+| `shiki` | 伺服器端程式碼高亮，輸出零 JS 的語法色彩 |
+| `reading-time` | 估算閱讀時間 |
+| `github-slugger` | 產生目錄（TOC）用的標題 slug |
+
+原則很明確：**能在伺服器端做完的事，就不要留到瀏覽器**。程式碼高亮、Markdown 編譯、frontmatter 解析全部發生在 build 或 request 階段，送到使用者手上的是乾淨的 HTML。
+
+## 內容架構：檔案即資料庫
+
+每一篇文章都是 `src/contents/posts/` 底下的一個 `.mdx` 檔，開頭以 frontmatter 描述它的 metadata：
+
+```mdx
+---
+title: "從零打造一個 MDX 技術部落格"
+date: "2026-07-07"
+category: "開發"
+description: "文章摘要，會用在列表與 SEO。"
+tags: ["Next.js", "MDX"]
+---
+
+# {frontmatter.title}
+
+正文從這裡開始……
+```
+
+檔名即為網址的 `slug`，所以 `first-post.mdx` 會對應到 `/blog/first-post`。這種「約定優於設定」的做法，讓新增一篇文章這件事，退化成「在資料夾裡放一個檔案」——不需要動任何後端。
+
+## 用 zod 為 frontmatter 上型別保險
+
+frontmatter 是人手寫的，人手寫的東西就會出錯：日期打錯格式、`tags` 忘了寫成陣列、`title` 整個漏掉。與其等到頁面渲染時才炸開，不如**在解析當下就用 schema 攔下來**。
+
+```ts
+const FrontmatterSchema = z.object({
+  title: z.string(),
+  date: z.string(),
+  description: z.string(),
+  category: z.string(),
+  tags: z.array(z.string()).default([]),
+  draft: z.boolean().default(false),
+  cover: z.string().optional(),
+  series: z.string().optional(),
+  updated: z.string().optional(),
+});
+```
+
+解析時用 `safeParse`，一旦格式不符就丟出帶有明確欄位路徑的錯誤：
+
+```ts
+const parsed = FrontmatterSchema.safeParse(data);
+if (!parsed.success) {
+  const issues = parsed.error.issues
+    .map((issue) => `  - ${issue.path.join(".") || "(root)"}: ${issue.message}`)
+    .join("\n");
+  throw new Error(`文章 frontmatter 格式錯誤：${fileName}\n${issues}`);
+}
+```
+
+<Callout type="tip">
+  把驗證放在 build 階段的好處是：**壞掉的文章會讓建置直接失敗**，而不是悄悄地上線成一個破版頁面。錯誤訊息會精確指出是哪個檔案、哪個欄位出了問題。
+</Callout>
+
+`draft: true` 的文章只在開發環境顯示，正式環境一律隱藏——這讓我能安心地把未完成的草稿也 commit 進 repo。
+
+## 一篇文章的渲染流程
+
+當使用者打開 `/blog/first-post`，伺服器端會依序完成：
+
+1. 依 slug 找到對應的 `.mdx` 檔並讀取。
+2. `gray-matter` 把 frontmatter 與正文切開。
+3. `zod` 驗證 metadata。
+4. `next-mdx-remote` 把正文編譯成 React 內容，並套上 remark / rehype 外掛與**自訂元件對照表**。
+
+其中最關鍵的是自訂元件對照表——它決定了 Markdown 的每個原生標籤最終會被渲染成什麼：
+
+```tsx
+export function MDXComponents(components: MDXComponents): MDXComponents {
+  return {
+    h2: ({ id, children }) => (
+      <Heading as="h2" id={id} className="my-4 text-3xl font-bold">
+        {children}
+      </Heading>
+    ),
+    a: ({ href, children }) => (
+      <Link className="text-primary/50 hover:text-primary" href={href as string}>
+        {children}
+      </Link>
+    ),
+    pre: ({ children }) => <CodeBlock>{children}</CodeBlock>,
+    code: (props) => <Code {...props} />,
+    Callout: (props) => <Callout {...props} />,
+    // ……
+  };
+}
+```
+
+這一層對照表是「內容」與「設計系統」的接縫：作者只管寫 Markdown，樣式與行為則由這裡統一注入。連結自動換成 Next.js 的 `<Link>`、標題自動掛上可分享的錨點、程式碼區塊交給專門的高亮元件——全部對寫作者透明。
+
+## 程式碼高亮：把成本留在伺服器端
+
+程式碼高亮是技術部落格的門面，但它也很容易變成效能包袱。許多方案在瀏覽器端載入一個龐大的高亮函式庫，換來的是可觀的 JavaScript 體積。
+
+這裡選擇 **Shiki**：它使用與 VS Code 相同的 TextMate 語法引擎，並且**完全在伺服器端執行**。編譯完成後，送到瀏覽器的只是帶有 inline style 的 HTML——沒有額外的執行期 JavaScript，色彩卻和你的編輯器一模一樣。
+
+<Callout type="warning">
+  Shiki 首次載入語言與主題檔時有一定成本。務必在模組層級快取 highlighter 實例，避免每次請求都重新初始化，否則在文章量大時會明顯拖慢建置。
+</Callout>
+
+## 自動目錄：讓 slug 與 rehype-slug 對齊
+
+長文需要一個目錄（TOC）。做法是掃描正文中的 `h2` / `h3` 標題，為每個標題產生一個 slug，讓 TOC 的連結能對應到頁面上的錨點。
+
+魔鬼藏在細節裡：TOC 的 slug **必須和 `rehype-slug` 實際掛在標題上的 `id` 完全一致**，否則點了目錄會跳到錯的地方。關鍵在於重複標題的去重規則——`rehype-slug` 會為第二個同名標題加上 `-1` 後綴。
+
+解法是用同一套 `github-slugger`，並且**依所有標題的出現順序**推進它的內部狀態，即使某個標題不會進 TOC，也要讓它「消耗」一次 slugger：
+
+```ts
+export function extractHeadings(content: string): Heading[] {
+  const slugger = new GithubSlugger();
+  const headings: Heading[] = [];
+
+  for (const rawLine of content.split("\n")) {
+    const match = rawLine.trim().match(/^(#{1,6})\s+(.*)$/);
+    if (!match) continue;
+
+    const depth = match[1].length;
+    const text = stripInlineMarkdown(match[2]);
+    const slug = slugger.slug(text); // 每個標題都要推進 slugger，維持去重狀態
+
+    if (depth >= 2 && depth <= 3 && text) {
+      headings.push({ depth, text, slug });
+    }
+  }
+
+  return headings;
+}
+```
+
+同時要記得把標題裡的 inline Markdown（粗體、行內程式碼、連結）先剝掉，才能得到與畫面一致的顯示文字。
+
+## 分類、標籤與系列
+
+有了乾淨的 metadata，內容的組織方式幾乎是免費的。同一份文章清單，可以衍生出多種瀏覽維度：
+
+- **分類（category）**：每篇文章歸屬一個主分類。
+- **標籤（tag）**：一篇文章可以有多個標籤，做細粒度的關聯。
+- **系列（series）**：把多篇文章串成一組連載，並依日期由舊到新排序，符合連載的閱讀順序。
+
+而**相關文章**則用一個簡單的加權規則計算：同分類 +2 分、每個共同標籤 +1 分，取分數最高的前幾篇。這套規則不需要任何機器學習，卻已經能給出相當合理的推薦。
+
+```ts
+posts
+  .filter((post) => post.slug !== slug)
+  .map((post) => {
+    let score = 0;
+    if (post.category === current.category) score += 2;
+    score += post.tags.filter((tag) => current.tags.includes(tag)).length;
+    return { post, score };
+  })
+  .filter((entry) => entry.score > 0)
+  .sort((a, b) => b.score - a.score)
+  .slice(0, limit);
+```
+
+## 小結
+
+回頭看，這個部落格沒有用到什麼花俏的技術，核心理念只有三條：
+
+1. **內容即檔案**——用 Git 管理文章，新增文章就是新增一個檔案。
+2. **在邊界驗證**——用 zod 把 frontmatter 的錯誤擋在建置階段，而非上線之後。
+3. **把工作推向伺服器端**——Markdown 編譯、程式碼高亮全部前置完成，讓瀏覽器只負責呈現。
+
+這樣的架構足夠簡單，簡單到我可以專注在真正重要的事情上——把文章寫好。接下來我會陸續分享更多開發過程中的思考，感謝你讀到這裡。
