@@ -78,10 +78,17 @@ const milestones: Milestone[] = [
     period: "2025",
     title: "加入 Exptech Studio",
     description:
-      "加入 Exptech Studio，和團隊一起投入防災與即時資訊服務的開發，把興趣延伸成能真正影響他人的產品，主要負責前端、UI/UX部分。",
+      "加入 Exptech Studio，和團隊一起投入防災與即時資訊服務的開發，把興趣延伸成能真正影響他人的產品，主要負責 前端、UI/UX 以及 DPIP 部分。",
     image: "/roadmap/exptech-studio.png",
     imageAlt: "Exptech Studio",
     href: "https://exptech.com.tw",
+  },
+  {
+    period: "2026",
+    title: "投入 App 開發",
+    description:
+      "主要開發 SwiftUI(iOS 端)，以 Flutter 為輔，目前兩個都在學習中。",
+    logos: ["devicon:swift", "devicon:flutter"],
   },
 ];
 
