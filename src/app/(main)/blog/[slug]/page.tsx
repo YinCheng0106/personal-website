@@ -190,7 +190,7 @@ export default async function PostPage({ params }: Props) {
             </header>
 
             {post.cover && (
-              <div className="relative mb-12 aspect-[16/9] w-full overflow-hidden rounded-xl border">
+              <div className="relative mb-12 aspect-video w-full overflow-hidden rounded-xl border">
                 <Image
                   src={post.cover}
                   alt={post.title}

@@ -64,10 +64,7 @@ export function AboutContent() {
               就讀於台灣靜宜大學資訊工程系
             </p>
             <p className="text-muted-foreground text-lg">
-              熱愛用程式解決問題，擅長前端開發與使用者體驗設計
-            </p>
-            <p className="text-muted-foreground text-lg">
-              相信技術應該讓生活更簡單、更有溫度
+              用程式解決問題，擅長 前端開發 & UI/UX
             </p>
 
             <div className="flex flex-wrap gap-3 pt-2">

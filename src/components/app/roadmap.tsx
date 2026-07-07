@@ -52,6 +52,8 @@ const milestones: Milestone[] = [
     description:
       "進入資工系，正式從 C／C++、Java 等基礎語言打底，把過去的自學經驗補上扎實的理論基礎。",
     logos: ["devicon:c", "devicon:cplusplus", "devicon:java"],
+    image: "/roadmap/pu_banner.png",
+    imageAlt: "靜宜大學",
   },
   {
     period: "2024",
@@ -69,7 +71,7 @@ const milestones: Milestone[] = [
   },
   {
     period: "2025",
-    title: "打造個人網站",
+    title: "打造個人網站 (本網站)",
     description:
       "以 Next.js 與 Tailwind CSS 從零打造這個網站，作為作品、文章與想法的集散地。",
     logos: ["devicon:nextjs", "devicon:tailwindcss"],
@@ -96,7 +98,6 @@ export function Roadmap() {
   const containerRef = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
 
-  // 捲動綁定：當時間軸從視窗中央往上帶時，中軸線逐漸填滿（輕量 Apple 質感）
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start 60%", "end 60%"],
