@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
+import { getProjectGitHubStats } from "@/lib/github";
 import { projectV2s } from "@/lib/project-v2-data";
 import { validateProjectV2s, type ProjectV2 } from "@/lib/project-v2";
 import {
@@ -10,66 +11,26 @@ import {
   projects,
 } from "@/lib/projects";
 
-// Independent pre-migration fixture protects all existing visible project data.
-const legacyProjects = [
-  {
-    slug: "personal-website",
-    type: "website",
-    title: "Personal Website",
-    summary: "個人網頁 (本站)",
-    repository: "YinCheng0106/personal-website",
-    language: "TypeScript",
-    color: "blue",
-    featured: true,
-    logo: undefined,
-  },
-  {
-    slug: "yinla-bot",
-    type: "bot",
-    title: "YINLA",
-    summary:
-      "這是一隻Discord的BOT，不定時會更新，主要功能是檢視天氣、檢視地震(含推播功能)、文字翻譯、查詢中油油價(含推播功能)以及查詢中華職棒相關的功能 ",
-    repository: "YINLA-TEAM/YINLA",
-    language: "JavaScript",
-    color: "yellow",
-    featured: true,
-    logo: "/projects/yinla-bot/logo.png",
-  },
-  {
-    slug: "iso-countries-utils",
-    type: "package",
-    title: "iso-countries-utils",
-    summary:
-      "一個輕量級、零依賴且型別安全的工具庫，用於轉換 ISO 3166-1 國家代碼（Alpha-2, Alpha-3, Numeric）與國旗 Emoji。專為高效能設計，並內建模糊搜尋與驗證功能",
-    repository: "YinCheng0106/iso-countries-utils",
-    language: "TypeScript",
-    color: "blue",
-    featured: true,
-    logo: undefined,
-  },
-  {
-    slug: "yinla-bot-website",
-    type: "website",
-    title: "yinla-bot-website",
-    summary: "YINLA Discord Bot 的官方網站",
-    repository: "YINLA-TEAM/yinla-bot-website",
-    language: "TypeScript",
-    color: "blue",
-    featured: true,
-    logo: undefined,
-  },
-  {
-    slug: "personai-api",
-    type: "api",
-    title: "personai-api",
-    summary: "AI 智慧健身教練後端服務 — 即時生物力學分析、動作計數與姿勢錯誤偵測",
-    repository: "YinCheng0106/personai-api",
-    language: "Python",
-    color: "blue",
-    featured: true,
-    logo: undefined,
-  },
-];
+const legacySlugs = [
+  "personal-website",
+  "yinla-bot",
+  "iso-countries-utils",
+  "yinla-bot-website",
+  "personai-api",
+] as const;
+
+// Checked against public GitHub repository pages during Phase 2-B1.
+const verifiedPublicRepositories = new Set([
+  "ExpTechTW/DPIP",
+  "YinCheng0106/personal-website",
+  "YinCheng0106/iso-countries-utils",
+  "YinCheng0106/personai-web",
+  "YinCheng0106/personai-api",
+  "YinCheng0106/QuotaMew",
+  "YinCheng0106/QuotaMew-docs",
+  "YINLA-TEAM/YINLA",
+  "YINLA-TEAM/yinla-bot-website",
+]);
 
 const baseProject = {
   id: "sample-project",
@@ -82,26 +43,161 @@ const baseProject = {
 } satisfies ProjectV2;
 
 describe("Project v2 portfolio integration", () => {
-  test("preserves all five existing projects and their visible fields", () => {
-    expect(projects).toHaveLength(5);
-    expect(
-      projects.map((project) => ({
-        slug: project.slug,
-        type: project.presentation.type,
-        title: project.title,
-        summary: project.summary,
-        repository: getPrimaryRepository(project)?.repository,
-        language: project.presentation.language,
-        color: project.presentation.color,
-        featured: project.presentation.featured,
-        logo: project.media?.logo,
-      })),
-    ).toEqual(legacyProjects);
+  test("publishes the five existing routes and two new products", () => {
+    expect(projects).toHaveLength(7);
+    for (const slug of legacySlugs) {
+      expect(getProjectBySlug(slug)?.publicationStatus).toBe("published");
+    }
+    expect(getProjectBySlug("dpip")?.publicationStatus).toBe("published");
+    expect(getProjectBySlug("quotamew")?.publicationStatus).toBe("published");
   });
 
-  test("keeps all five route slugs stable", () => {
-    expect(projectV2s.map((project) => project.slug)).toEqual(
-      legacyProjects.map((project) => project.slug),
+  test("keeps existing repository links, slugs, and the YINLA legacy page", () => {
+    const expectedLinks = {
+      "personal-website": "YinCheng0106/personal-website",
+      "yinla-bot": "YINLA-TEAM/YINLA",
+      "iso-countries-utils": "YinCheng0106/iso-countries-utils",
+      "yinla-bot-website": "YINLA-TEAM/yinla-bot-website",
+      "personai-api": "YinCheng0106/personai-api",
+    };
+    for (const [slug, repository] of Object.entries(expectedLinks)) {
+      const project = getProjectBySlug(slug);
+      expect(
+        project?.repositories?.some((repo) => repo.repository === repository),
+      ).toBe(true);
+    }
+    expect(getProjectBySlug("yinla-bot-website")?.presentation.featured).toBe(
+      false,
+    );
+    expect(
+      getPrimaryRepository(getProjectBySlug("yinla-bot-website")!)?.repository,
+    ).toBe("YINLA-TEAM/yinla-bot-website");
+  });
+
+  test("attributes DPIP widgets to an individual contributor within the ExpTechTW team", () => {
+    const project = getProjectBySlug("dpip")!;
+    expect(project.attribution).toEqual({
+      kind: "team",
+      name: "ExpTechTW",
+      role: "Contributor — iOS weather widgets",
+    });
+    expect(project.summary).toContain("我參與 iOS 天氣小工具");
+    expect(getPrimaryRepository(project)?.repository).toBe("ExpTechTW/DPIP");
+    expect(project.contributionEvidence?.map(({ href }) => href)).toEqual(
+      [576, 579, 580, 582, 607, 608, 629].map(
+        (number) => `https://github.com/ExpTechTW/DPIP/pull/${number}`,
+      ),
+    );
+  });
+
+  test("presents PersonAI as a student-team web and API product", () => {
+    const project = getProjectBySlug("personai-api")!;
+    expect(project.title).toBe("PersonAI");
+    expect(project.attribution).toEqual({
+      kind: "team",
+      name: "大學畢業專題學生團隊",
+    });
+    expect(project.summary).toContain("網頁前端與 FastAPI 後端");
+    expect(project.repositories?.map(({ repository }) => repository)).toEqual([
+      "YinCheng0106/personai-web",
+      "YinCheng0106/personai-api",
+    ]);
+    expect(getPrimaryRepository(project)?.repository).toBe(
+      "YinCheng0106/personai-web",
+    );
+  });
+
+  test("presents QuotaMew with its application and documentation repositories", () => {
+    const project = getProjectBySlug("quotamew")!;
+    expect(project.summary).toContain("macOS 選單列");
+    expect(project.summary).toContain("Claude Code 整合仍屬實驗性、未驗證");
+    expect(project.repositories?.map(({ repository }) => repository)).toEqual([
+      "YinCheng0106/QuotaMew",
+      "YinCheng0106/QuotaMew-docs",
+    ]);
+    expect(getPrimaryRepository(project)?.repository).toBe(
+      "YinCheng0106/QuotaMew",
+    );
+  });
+
+  test("presents one featured YINLA product with Bot and Website sources", () => {
+    const project = getProjectBySlug("yinla-bot")!;
+    expect(project.attribution?.name).toBe("YINLA-TEAM");
+    expect(project.repositories?.map(({ repository }) => repository)).toEqual([
+      "YINLA-TEAM/YINLA",
+      "YINLA-TEAM/yinla-bot-website",
+    ]);
+    expect(getPrimaryRepository(project)?.repository).toBe("YINLA-TEAM/YINLA");
+    expect(project.contributionEvidence?.[0]?.href).toBe(
+      "https://github.com/YINLA-TEAM/YINLA/blob/main/README.md#credits",
+    );
+  });
+
+  test("features exactly DPIP, PersonAI, QuotaMew, and YINLA", () => {
+    expect(
+      projects
+        .filter((project) => project.presentation.featured)
+        .map((project) => project.title)
+        .sort(),
+    ).toEqual(["DPIP", "PersonAI", "QuotaMew", "YINLA"]);
+    for (const slug of [
+      "personal-website",
+      "iso-countries-utils",
+      "yinla-bot-website",
+    ]) {
+      expect(getProjectBySlug(slug)?.presentation.featured).toBe(false);
+    }
+  });
+
+  test("publishes only the approved project inventory and public repositories", () => {
+    expect(projectV2s.map((project) => project.slug).sort()).toEqual([
+      "dpip",
+      "iso-countries-utils",
+      "personai-api",
+      "personal-website",
+      "quotamew",
+      "yinla-bot",
+      "yinla-bot-website",
+    ]);
+    for (const project of projects) {
+      expect(project.repositories?.length).toBeGreaterThan(0);
+      expect(
+        project.repositories?.filter((repo) => repo.isPrimary),
+      ).toHaveLength(1);
+      for (const repo of project.repositories ?? []) {
+        expect(verifiedPublicRepositories.has(repo.repository)).toBe(true);
+      }
+    }
+    expect(() => validateProjectV2s(projectV2s)).not.toThrow();
+  });
+
+  test("adds no case studies or media and retains only the approved YINLA logo", () => {
+    expect(projectV2s.every((project) => project.caseStudy === undefined)).toBe(
+      true,
+    );
+    expect(projectV2s.filter((project) => project.media !== undefined)).toEqual(
+      [getProjectBySlug("yinla-bot")!],
+    );
+    expect(getProjectBySlug("yinla-bot")?.media).toEqual({
+      logo: "/projects/yinla-bot/logo.png",
+    });
+    for (const project of projectV2s) {
+      for (const evidence of project.contributionEvidence ?? []) {
+        expect(evidence.href.startsWith("https://github.com/")).toBe(true);
+      }
+    }
+  });
+
+  test("resolves project content when GitHub supplemental data is unavailable", async () => {
+    const project = getProjectBySlug("personai-api")!;
+    const stats = await getProjectGitHubStats(
+      project,
+      async () => new Response(null, { status: 503 }),
+    );
+    expect(stats).toBeNull();
+    expect(getProjectBySlug(project.slug)?.summary).toBe(project.summary);
+    expect(getPrimaryRepository(project)?.repository).toBe(
+      "YinCheng0106/personai-web",
     );
   });
 
@@ -182,8 +278,16 @@ describe("Project v2 portfolio integration", () => {
         {
           ...baseProject,
           repositories: [
-            { provider: "github", repository: "example/first", isPrimary: true },
-            { provider: "github", repository: "example/second", isPrimary: true },
+            {
+              provider: "github",
+              repository: "example/first",
+              isPrimary: true,
+            },
+            {
+              provider: "github",
+              repository: "example/second",
+              isPrimary: true,
+            },
           ],
         },
       ]),
