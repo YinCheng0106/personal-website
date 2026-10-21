@@ -5,7 +5,6 @@ import { notFound } from "next/navigation";
 import { Icon } from "@iconify-icon/react";
 import { formatDistance } from "date-fns";
 import { zhTW } from "date-fns/locale";
-import remarkGfm from "remark-gfm";
 
 import { getGitHubStats, Contributor } from "@/lib/github";
 import { projects, typeIcon } from "@/lib/projects";
@@ -13,8 +12,7 @@ import type { Project } from "@/lib/projects";
 
 import { Badge } from "@/components/ui/badge";
 import { LanguageStatsBar } from "@/components/app/langStatsBar";
-import { MDXComponents } from "@/components/mdx/mdx-components";
-import { MDXRemote } from "next-mdx-remote/rsc";
+import GitHubReadmeView from "@/components/app/githubReadme";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -176,22 +174,7 @@ export default async function ProjectPage({ params }: Props) {
       <main className="mt-8 grid w-full gap-8 md:grid-cols-4">
         <div className="min-w-0 md:col-span-3">
           <div className="prose dark:prose-invert prose-pre:bg-transparent prose-code:before:content-none prose-code:after:content-none max-w-none">
-            {githubStats?.readme?.content ? (
-              <MDXRemote
-                source={Buffer.from(
-                  githubStats.readme.content,
-                  "base64",
-                ).toString("utf-8")}
-                components={MDXComponents({})}
-                options={{
-                  mdxOptions: {
-                    remarkPlugins: [remarkGfm],
-                  },
-                }}
-              />
-            ) : (
-              <p className="text-muted-foreground">無 README 資料</p>
-            )}
+            <GitHubReadmeView readme={githubStats?.readme} />
           </div>
         </div>
         <div className="divide-accent mb-auto grid grid-cols-1 divide-y md:col-span-1">
@@ -209,7 +192,7 @@ export default async function ProjectPage({ params }: Props) {
           <div className="flex flex-col gap-2 py-4">
             <h2 className="text-lg font-semibold">主題</h2>
             <div className="mt-2 flex flex-wrap gap-2">
-              {githubStats?.topics.length ? (
+              {githubStats?.topics?.length ? (
                 githubStats.topics.map((topic: string) => (
                   <Badge key={topic} variant="outline" className="px-2 hover:bg-accent transition-colors">
                     {topic}
@@ -224,7 +207,7 @@ export default async function ProjectPage({ params }: Props) {
           <div className="flex flex-col gap-2 py-4">
             <h2 className="text-lg font-semibold">版本</h2>
             <div className="mt-2 flex flex-wrap">
-              {githubStats?.releases[0] ? (
+              {githubStats?.releases?.[0] ? (
                 <Link
                   href={githubStats.releases[0].html_url}
                   target="_blank"

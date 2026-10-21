@@ -1,3 +1,5 @@
+import { decodeGitHubReadme } from "@/lib/github-readme";
+
 export type Languages = Record<string, number>;
 
 export interface Contributor {
@@ -98,30 +100,31 @@ export interface GitHubStats {
 }
 
 export interface README {
-  name: string;
   path: string;
-  sha: string;
-  size: number;
-  url: string;
   html_url: string;
-  git_url: string;
   download_url: string;
-  type: string;
   content: string;
   encoding: string;
-  _links: {
-    self: string;
-    git: string;
-    html: string;
+}
+
+type GitHubFetch = (
+  input: string,
+  init?: RequestInit & { next?: { revalidate: number } },
+) => Promise<Response>;
+
+function githubApiHeaders(): HeadersInit {
+  const headers: Record<string, string> = {
+    Accept: "application/vnd.github+json",
   };
+  const token = process.env.GITHUB_TOKEN;
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
 }
 
 export async function getGitHubStats(repo: string) {
   try {
     const res = await fetch(`https://api.github.com/repos/${repo}`, {
-      headers: {
-        Authorization: `token ${process.env.GITHUB_TOKEN}`,
-      },
+      headers: githubApiHeaders(),
       next: { revalidate: 300 },
     });
     if (!res.ok) return null;
@@ -129,7 +132,7 @@ export async function getGitHubStats(repo: string) {
     const releases: Releases[] = await getRepoRelease(repo);
     const languages: Languages = await getRepoLanguage(repo);
     const contributors: Contributor[] = await gerRepoContributors(repo);
-    const readme: README = await getRepoREADME(repo);
+    const readme: README | null = await getRepoREADME(repo);
 
     const data = await res.json();
     return {
@@ -159,9 +162,7 @@ export async function getGitHubStats(repo: string) {
 const getRepoLanguage = async (repo: string) => {
   try {
     const res = await fetch(`https://api.github.com/repos/${repo}/languages`, {
-      headers: {
-        Authorization: `token ${process.env.GITHUB_TOKEN}`,
-      },
+      headers: githubApiHeaders(),
       next: { revalidate: 300 },
     });
     if (!res.ok) return null;
@@ -180,9 +181,7 @@ const gerRepoContributors = async (repo: string) => {
     const res = await fetch(
       `https://api.github.com/repos/${repo}/contributors`,
       {
-        headers: {
-          Authorization: `token ${process.env.GITHUB_TOKEN}`,
-        },
+        headers: githubApiHeaders(),
         next: { revalidate: 3600 },
       },
     );
@@ -199,9 +198,7 @@ const gerRepoContributors = async (repo: string) => {
 export async function getRepoRelease(repo: string) {
   try {
     const res = await fetch(`https://api.github.com/repos/${repo}/releases`, {
-      headers: {
-        Authorization: `token ${process.env.GITHUB_TOKEN}`,
-      },
+      headers: githubApiHeaders(),
       next: { revalidate: 300 },
     });
     if (!res.ok) return null;
@@ -214,18 +211,34 @@ export async function getRepoRelease(repo: string) {
   }
 }
 
-export async function getRepoREADME(repo: string) {
+export async function getRepoREADME(
+  repo: string,
+  fetcher: GitHubFetch = fetch,
+): Promise<README | null> {
   try {
-    const res = await fetch(`https://api.github.com/repos/${repo}/readme`, {
-      headers: {
-        Authorization: `token ${process.env.GITHUB_TOKEN}`,
-      },
+    const res = await fetcher(`https://api.github.com/repos/${repo}/readme`, {
+      headers: githubApiHeaders(),
       next: { revalidate: 300 },
     });
     if (!res.ok) return null;
 
-    const data = await res.json();
-    return data;
+    const data: unknown = await res.json();
+    if (!data || typeof data !== "object") return null;
+
+    const readme = data as Partial<README>;
+    if (
+      readme.encoding !== "base64" ||
+      typeof readme.content !== "string" ||
+      typeof readme.path !== "string" ||
+      typeof readme.html_url !== "string" ||
+      typeof readme.download_url !== "string"
+    ) {
+      return null;
+    }
+
+    if (!decodeGitHubReadme(readme)) return null;
+
+    return readme as README;
   } catch (error) {
     console.error("Error fetching GitHub repo README:", error);
     return null;
