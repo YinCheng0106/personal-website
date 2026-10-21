@@ -34,8 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  const githubStats = await getProjectGitHubStats(project);
-  const description = githubStats?.github_description || project.summary;
+  const description = project.summary;
 
   return {
     title: project.title,
