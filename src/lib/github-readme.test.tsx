@@ -102,6 +102,64 @@ Read the [setup guide](docs/setup.md).
     expect(html).toContain('<code class="language-ts">');
   });
 
+  test.each([
+    {
+      name: "YINLA",
+      repository: "YINLA-TEAM/YINLA",
+      source: `<p align="center"><img src="./assets/yinla-readme-splash-compact.png" alt="HTML splash" width="100%" /></p>
+
+# YINLA
+
+[![Discord](https://img.shields.io/discord/1031159028505641011?color=5865F2&label=Discord&logo=discord&logoColor=white&style=flat-square)](https://discord.gg/mnCHdBbh65)
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg?style=flat-square)](./License)
+[![Runtime](https://img.shields.io/badge/runtime-Bun%20%7C%20Node.js-111111?style=flat-square)](./package.json)`,
+      altTexts: ["Discord", "License: GPL v3", "Runtime"],
+    },
+    {
+      name: "iso-countries-utils",
+      repository: "YinCheng0106/iso-countries-utils",
+      source: `# iso-countries-utils
+
+![License](https://img.shields.io/npm/l/iso-countries-utils)
+![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue)
+![Version](https://img.shields.io/npm/v/iso-countries-utils)
+
+English | [繁體中文](./README.zh-TW.md)`,
+      altTexts: ["License", "TypeScript", "Version"],
+    },
+  ])("preserves intrinsic badge sizing for $name Markdown", ({ repository, source, altTexts }) => {
+    const html = render({
+      ...makeReadme(source),
+      html_url: `https://github.com/${repository}/blob/main/README.md`,
+      download_url: `https://raw.githubusercontent.com/${repository}/main/README.md`,
+    });
+    const images = html?.match(/<img\b[^>]*>/g) ?? [];
+
+    expect(images).toHaveLength(3);
+    images.forEach((image, index) => {
+      expect(image).toContain(`alt="${altTexts[index]}"`);
+      expect(image).toContain('src="https://img.shields.io/');
+      expect(image).not.toMatch(/\b(?:width|height)=/);
+      expect(image).not.toContain("data-nimg");
+      expect(image).toContain("max-w-full");
+      expect(image).toContain("h-auto");
+    });
+    expect(html).not.toContain("HTML splash");
+    expect(html).toContain(`href="https://github.com/${repository}/blob/main/`);
+  });
+
+  test("constrains large relative Markdown images without inventing dimensions", () => {
+    const html = render(makeReadme('![YINLA screenshot](./assets/screenshot.png)'));
+
+    expect(html).toContain(
+      'src="https://raw.githubusercontent.com/YINLA-TEAM/YINLA/main/assets/screenshot.png"',
+    );
+    expect(html).toContain('alt="YINLA screenshot"');
+    expect(html).toContain("max-w-full");
+    expect(html).toContain("h-auto");
+    expect(html).not.toMatch(/\b(?:width|height)=/);
+  });
+
   test("resolves README-relative images and links in their GitHub context", () => {
     expect(
       resolveGitHubReadmeUrl("assets/bot.png", "src", context),

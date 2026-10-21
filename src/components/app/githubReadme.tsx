@@ -1,4 +1,3 @@
-import Image from "next/image";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
@@ -21,7 +20,9 @@ const components: Components = {
     href ? <a href={href}>{children}</a> : <>{children}</>,
   img: ({ src, alt }) =>
     typeof src === "string" && src ? (
-      <Image src={src} alt={alt ?? ""} width={1200} height={800} unoptimized />
+      // External README images have unknown dimensions; preserve their intrinsic size.
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={src} alt={alt ?? ""} className="h-auto max-w-full" />
     ) : null,
 };
 
