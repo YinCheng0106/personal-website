@@ -15,7 +15,6 @@ const legacySlugs = [
   "personal-website",
   "yinla-bot",
   "iso-countries-utils",
-  "yinla-bot-website",
   "personai-api",
 ] as const;
 
@@ -43,8 +42,8 @@ const baseProject = {
 } satisfies ProjectV2;
 
 describe("Project v2 portfolio integration", () => {
-  test("publishes the five existing routes and two new products", () => {
-    expect(projects).toHaveLength(7);
+  test("publishes exactly six canonical products", () => {
+    expect(projects).toHaveLength(6);
     for (const slug of legacySlugs) {
       expect(getProjectBySlug(slug)?.publicationStatus).toBe("published");
     }
@@ -52,12 +51,11 @@ describe("Project v2 portfolio integration", () => {
     expect(getProjectBySlug("quotamew")?.publicationStatus).toBe("published");
   });
 
-  test("keeps existing repository links, slugs, and the YINLA legacy page", () => {
+  test("keeps the other legacy slugs and repository links", () => {
     const expectedLinks = {
       "personal-website": "YinCheng0106/personal-website",
       "yinla-bot": "YINLA-TEAM/YINLA",
       "iso-countries-utils": "YinCheng0106/iso-countries-utils",
-      "yinla-bot-website": "YINLA-TEAM/yinla-bot-website",
       "personai-api": "YinCheng0106/personai-api",
     };
     for (const [slug, repository] of Object.entries(expectedLinks)) {
@@ -66,12 +64,6 @@ describe("Project v2 portfolio integration", () => {
         project?.repositories?.some((repo) => repo.repository === repository),
       ).toBe(true);
     }
-    expect(getProjectBySlug("yinla-bot-website")?.presentation.featured).toBe(
-      false,
-    );
-    expect(
-      getPrimaryRepository(getProjectBySlug("yinla-bot-website")!)?.repository,
-    ).toBe("YINLA-TEAM/yinla-bot-website");
   });
 
   test("attributes DPIP widgets to an individual contributor within the ExpTechTW team", () => {
@@ -122,6 +114,14 @@ describe("Project v2 portfolio integration", () => {
 
   test("presents one featured YINLA product with Bot and Website sources", () => {
     const project = getProjectBySlug("yinla-bot")!;
+    expect(projectV2s.filter(({ id }) => id.startsWith("yinla-"))).toEqual([
+      project,
+    ]);
+    expect(project.id).toBe("yinla-bot");
+    expect(project.title).toBe("YINLA");
+    expect(project.publicationStatus).toBe("published");
+    expect(project.presentation.featured).toBe(true);
+    expect(getProjectBySlug("yinla-bot-website")).toBeUndefined();
     expect(project.attribution?.name).toBe("YINLA-TEAM");
     expect(project.repositories?.map(({ repository }) => repository)).toEqual([
       "YINLA-TEAM/YINLA",
@@ -140,11 +140,7 @@ describe("Project v2 portfolio integration", () => {
         .map((project) => project.title)
         .sort(),
     ).toEqual(["DPIP", "PersonAI", "QuotaMew", "YINLA"]);
-    for (const slug of [
-      "personal-website",
-      "iso-countries-utils",
-      "yinla-bot-website",
-    ]) {
+    for (const slug of ["personal-website", "iso-countries-utils"]) {
       expect(getProjectBySlug(slug)?.presentation.featured).toBe(false);
     }
   });
@@ -157,7 +153,6 @@ describe("Project v2 portfolio integration", () => {
       "personal-website",
       "quotamew",
       "yinla-bot",
-      "yinla-bot-website",
     ]);
     for (const project of projects) {
       expect(project.repositories?.length).toBeGreaterThan(0);
@@ -189,16 +184,19 @@ describe("Project v2 portfolio integration", () => {
   });
 
   test("resolves project content when GitHub supplemental data is unavailable", async () => {
-    const project = getProjectBySlug("personai-api")!;
-    const stats = await getProjectGitHubStats(
-      project,
-      async () => new Response(null, { status: 503 }),
-    );
-    expect(stats).toBeNull();
-    expect(getProjectBySlug(project.slug)?.summary).toBe(project.summary);
-    expect(getPrimaryRepository(project)?.repository).toBe(
-      "YinCheng0106/personai-web",
-    );
+    for (const [slug, primaryRepository] of [
+      ["personai-api", "YinCheng0106/personai-web"],
+      ["yinla-bot", "YINLA-TEAM/YINLA"],
+    ]) {
+      const project = getProjectBySlug(slug)!;
+      const stats = await getProjectGitHubStats(
+        project,
+        async () => new Response(null, { status: 503 }),
+      );
+      expect(stats).toBeNull();
+      expect(getProjectBySlug(project.slug)?.summary).toBe(project.summary);
+      expect(getPrimaryRepository(project)?.repository).toBe(primaryRepository);
+    }
   });
 
   test("allows published projects with zero repositories", () => {

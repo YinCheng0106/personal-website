@@ -1,22 +1,26 @@
 import { describe, expect, test } from "bun:test";
 
-import { generateMetadata } from "@/app/(main)/projects/[slug]/page";
+import ProjectPage, { generateMetadata } from "@/app/(main)/projects/[slug]/page";
+import sitemap from "@/app/sitemap";
 import { projectV2s } from "@/lib/project-v2-data";
 
 const metadataFor = (slug: string) =>
   generateMetadata({ params: Promise.resolve({ slug }) });
 
 describe("project detail metadata", () => {
-  test("uses the curated summary for SEO, Open Graph, and Twitter on all seven published routes", async () => {
+  test("uses the curated summary and canonical URL on all six published routes", async () => {
     const published = projectV2s.filter(
       (project) => project.publicationStatus === "published",
     );
-    expect(published).toHaveLength(7);
+    expect(published).toHaveLength(6);
 
     for (const project of published) {
       const metadata = await metadataFor(project.slug);
       expect(metadata.title).toBe(project.title);
       expect(metadata.description).toBe(project.summary);
+      expect(metadata.alternates?.canonical).toBe(
+        `https://yincheng.app/projects/${project.slug}`,
+      );
       expect(metadata.openGraph?.description).toBe(project.summary);
       expect(metadata.twitter?.description).toBe(project.summary);
       expect(metadata.openGraph?.url).toBe(
@@ -45,6 +49,9 @@ describe("project detail metadata", () => {
     const yinla = await metadataFor("yinla-bot");
     expect(yinla.description).toContain("Bot");
     expect(yinla.description).toContain("獨立產品網站");
+    expect(yinla.alternates?.canonical).toBe(
+      "https://yincheng.app/projects/yinla-bot",
+    );
 
     const dpip = await metadataFor("dpip");
     expect(dpip.description).toContain("臺灣防災資訊 App");
@@ -67,11 +74,31 @@ describe("project detail metadata", () => {
     );
 
     try {
-      const metadata = await metadataFor("personai-api");
-      expect(metadata.description).toBe(
-        projectV2s.find((project) => project.slug === "personai-api")?.summary,
-      );
+      for (const slug of ["personai-api", "yinla-bot"]) {
+        const metadata = await metadataFor(slug);
+        expect(metadata.description).toBe(
+          projectV2s.find((project) => project.slug === slug)?.summary,
+        );
+      }
       expect(calls).toBe(0);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  test("renders the canonical YINLA route when GitHub is unavailable", async () => {
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = Object.assign(
+      async () => new Response(null, { status: 503 }),
+      { preconnect: originalFetch.preconnect },
+    );
+
+    try {
+      const page = await ProjectPage({
+        params: Promise.resolve({ slug: "yinla-bot" }),
+      });
+      expect(page.type).toBe("div");
+      expect(page.props.className).toContain("container");
     } finally {
       globalThis.fetch = originalFetch;
     }
@@ -81,5 +108,15 @@ describe("project detail metadata", () => {
     const metadata = await metadataFor("missing-project");
     expect(metadata.title).toBe("專案不存在");
     expect(metadata.robots).toEqual({ index: false, follow: false });
+  });
+
+  test("lists canonical YINLA exactly once and omits its old website URL", () => {
+    const urls = sitemap().map(({ url }) => url);
+    expect(
+      urls.filter((url) => url === "https://yincheng.app/projects/yinla-bot"),
+    ).toHaveLength(1);
+    expect(urls).not.toContain(
+      "https://yincheng.app/projects/yinla-bot-website",
+    );
   });
 });

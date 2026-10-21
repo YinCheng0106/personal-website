@@ -1,6 +1,6 @@
 import { validateProjectV2s, type ProjectV2 } from "@/lib/project-v2";
 
-/** Public portfolio content. Legacy route slugs remain stable through Phase 2-B2. */
+/** Public portfolio content. Legacy YINLA URLs redirect to the canonical product. */
 export const projectV2s: readonly ProjectV2[] = [
   {
     id: "dpip",
@@ -125,27 +125,6 @@ export const projectV2s: readonly ProjectV2[] = [
       {
         provider: "github",
         repository: "YinCheng0106/iso-countries-utils",
-        isPrimary: true,
-      },
-    ],
-  },
-  {
-    id: "yinla-bot-website",
-    slug: "yinla-bot-website",
-    title: "yinla-bot-website",
-    summary: "YINLA Discord Bot 的官方網站",
-    presentation: {
-      type: "website",
-      language: "TypeScript",
-      color: "blue",
-      featured: false,
-    },
-    lifecycle: "unknown",
-    publicationStatus: "published",
-    repositories: [
-      {
-        provider: "github",
-        repository: "YINLA-TEAM/yinla-bot-website",
         isPrimary: true,
       },
     ],

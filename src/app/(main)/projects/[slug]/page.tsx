@@ -39,6 +39,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: project.title,
     description,
+    alternates: {
+      canonical: `https://yincheng.app/projects/${project.slug}`,
+    },
     ...(getProjectRobotsMetadata(project) && {
       robots: getProjectRobotsMetadata(project),
     }),
