@@ -1,4 +1,5 @@
 import { decodeGitHubReadme } from "@/lib/github-readme";
+import type { ProjectV2 } from "@/lib/project-v2";
 
 export type Languages = Record<string, number>;
 
@@ -121,20 +122,27 @@ function githubApiHeaders(): HeadersInit {
   return headers;
 }
 
-export async function getGitHubStats(repo: string) {
+export async function getGitHubStats(
+  repo: string,
+  fetcher: GitHubFetch = fetch,
+) {
   try {
-    const res = await fetch(`https://api.github.com/repos/${repo}`, {
+    const res = await fetcher(`https://api.github.com/repos/${repo}`, {
       headers: githubApiHeaders(),
       next: { revalidate: 300 },
     });
     if (!res.ok) return null;
 
-    const releases: Releases[] = await getRepoRelease(repo);
-    const languages: Languages = await getRepoLanguage(repo);
-    const contributors: Contributor[] = await gerRepoContributors(repo);
-    const readme: README | null = await getRepoREADME(repo);
-
     const data = await res.json();
+    // Never surface repository metadata from a private repository, even when
+    // the configured GitHub token has permission to read it.
+    if (data.visibility !== "public") return null;
+
+    const releases: Releases[] = await getRepoRelease(repo, fetcher);
+    const languages: Languages = await getRepoLanguage(repo, fetcher);
+    const contributors: Contributor[] = await gerRepoContributors(repo, fetcher);
+    const readme: README | null = await getRepoREADME(repo, fetcher);
+
     return {
       owner: data.owner,
       visibility: data.visibility,
@@ -159,9 +167,22 @@ export async function getGitHubStats(repo: string) {
   }
 }
 
-const getRepoLanguage = async (repo: string) => {
+/** Fetch optional GitHub metadata only for a project's explicitly primary repository. */
+export function getProjectGitHubStats(
+  project: ProjectV2,
+  fetcher: GitHubFetch = fetch,
+) {
+  const primaryRepository = project.repositories?.find(
+    (repository) => repository.isPrimary,
+  );
+  return primaryRepository
+    ? getGitHubStats(primaryRepository.repository, fetcher)
+    : Promise.resolve(null);
+}
+
+const getRepoLanguage = async (repo: string, fetcher: GitHubFetch = fetch) => {
   try {
-    const res = await fetch(`https://api.github.com/repos/${repo}/languages`, {
+    const res = await fetcher(`https://api.github.com/repos/${repo}/languages`, {
       headers: githubApiHeaders(),
       next: { revalidate: 300 },
     });
@@ -176,9 +197,12 @@ const getRepoLanguage = async (repo: string) => {
   }
 };
 
-const gerRepoContributors = async (repo: string) => {
+const gerRepoContributors = async (
+  repo: string,
+  fetcher: GitHubFetch = fetch,
+) => {
   try {
-    const res = await fetch(
+    const res = await fetcher(
       `https://api.github.com/repos/${repo}/contributors`,
       {
         headers: githubApiHeaders(),
@@ -195,9 +219,12 @@ const gerRepoContributors = async (repo: string) => {
   }
 };
 
-export async function getRepoRelease(repo: string) {
+export async function getRepoRelease(
+  repo: string,
+  fetcher: GitHubFetch = fetch,
+) {
   try {
-    const res = await fetch(`https://api.github.com/repos/${repo}/releases`, {
+    const res = await fetcher(`https://api.github.com/repos/${repo}/releases`, {
       headers: githubApiHeaders(),
       next: { revalidate: 300 },
     });

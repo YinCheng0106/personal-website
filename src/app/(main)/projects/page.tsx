@@ -1,6 +1,5 @@
 import { Metadata } from "next";
 import { projects } from "@/lib/projects";
-import type { Project } from "@/lib/projects";
 
 import { SectionTitle } from "@/components/app/sectionTitle";
 import { ProjectBlock } from "@/components/app/projectBlock";
@@ -42,13 +41,13 @@ export default function ProjectsPage() {
         </p>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
-          {projects.sort((a, b) => a.title.localeCompare(b.title)).map((project: Project) => (
+          {[...projects].sort((a, b) => a.title.localeCompare(b.title)).map((project) => (
             <ProjectBlock
               key={project.slug}
-              type={project.type}
-              logo={project.logo}
+              type={project.presentation.type}
+              logo={project.media?.logo}
               title={project.title}
-              description={project.description}
+              description={project.summary}
               link={`projects/${project.slug}`}
             />
           ))}

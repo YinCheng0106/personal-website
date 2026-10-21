@@ -12,13 +12,15 @@ import { CodeBadge } from "@/components/app/codeBadge";
 import { Badge } from "@/components/ui/badge";
 import { Icon } from "@iconify-icon/react";
 import { motion, useReducedMotion } from "motion/react"
-import type { Project } from "@/lib/projects";
+import type { ProjectV2 } from "@/lib/project-v2";
+import type { getGitHubStats } from "@/lib/github";
 
 interface Props {
-  project: Project;
+  project: ProjectV2;
+  stats: Awaited<ReturnType<typeof getGitHubStats>>;
 }
 
-export function ProjectCard({ project }: Props) {
+export function ProjectCard({ project, stats }: Props) {
   const reduce = useReducedMotion();
 
   return (
@@ -44,7 +46,7 @@ export function ProjectCard({ project }: Props) {
                   {project.title}
                 </CardTitle>
               </div>
-              {project.featured && (
+              {project.presentation.featured && (
                 <Badge variant="secondary" className="text-xs">
                   <Icon icon="mdi:star" />
                   精選
@@ -52,25 +54,25 @@ export function ProjectCard({ project }: Props) {
               )}
             </div>
             <CardDescription className="line-clamp-3 text-sm">
-              {project.description}
+              {project.summary}
             </CardDescription>
           </CardHeader>
 
           <CardContent className="mt-auto pt-4">
             <div className="flex flex-wrap items-center gap-3 text-xs">
-              {project.language && (
-                <CodeBadge lang={project.language} type="icon" />
+              {project.presentation.language && (
+                <CodeBadge lang={project.presentation.language} type="icon" />
               )}
-              {project.stars !== undefined && (
+              {stats?.stars !== undefined && (
                 <div className="text-muted-foreground flex items-center gap-1">
                   <Icon icon="mdi:star-outline" />
-                  {project.stars}
+                  {stats.stars}
                 </div>
               )}
-              {project.forks !== undefined && (
+              {stats?.forks !== undefined && (
                 <div className="text-muted-foreground flex items-center gap-1">
                   <Icon icon="mdi:source-fork" />
-                  {project.forks}
+                  {stats.forks}
                 </div>
               )}
             </div>

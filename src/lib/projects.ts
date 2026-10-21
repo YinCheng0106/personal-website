@@ -1,20 +1,7 @@
 import { projectV2s } from "@/lib/project-v2-data";
 import type { ProjectV2 } from "@/lib/project-v2";
 
-export type Project = {
-  slug: string;
-  title: string;
-  logo?: string;
-  type: string;
-  description: string;
-  github: string;
-  stars?: number;
-  forks?: number;
-  language?: string;
-  color?: string;
-  image?: string;
-  featured?: boolean;
-};
+export type { ProjectV2 as Project } from "@/lib/project-v2";
 
 export const typeIcon: Record<string, string> = {
   website: "mdi:world-wide-web",
@@ -26,44 +13,37 @@ export const typeIcon: Record<string, string> = {
   api: "mdi:gear",
 };
 
-/** Compatibility boundary for the existing GitHub-backed project pages. */
-export function toLegacyProject(project: ProjectV2): Project {
-  if (project.publicationStatus !== "published") {
-    throw new Error(`Legacy project ${project.id} must be published`);
-  }
-  const primaryGitHub =
-    project.repositories?.find((repo) => repo.isPrimary) ??
-    project.repositories?.[0];
-  if (!primaryGitHub) {
-    throw new Error(
-      `Legacy project ${project.id} requires a public GitHub repository`,
-    );
-  }
-
-  return {
-    slug: project.slug,
-    title: project.title,
-    type: project.presentation.type,
-    description: project.summary,
-    github: primaryGitHub.repository,
-    ...(project.media?.logo !== undefined && { logo: project.media.logo }),
-    ...(project.media?.image !== undefined && { image: project.media.image }),
-    ...(project.presentation.language !== undefined && {
-      language: project.presentation.language,
-    }),
-    ...(project.presentation.color !== undefined && {
-      color: project.presentation.color,
-    }),
-    ...(project.presentation.featured !== undefined && {
-      featured: project.presentation.featured,
-    }),
-  };
+/** Only published projects participate in public listings and discovery. */
+export function getPublicProjects(
+  allProjects: readonly ProjectV2[] = projectV2s,
+): readonly ProjectV2[] {
+  return allProjects.filter(
+    (project) => project.publicationStatus === "published",
+  );
 }
 
-export function toLegacyProjects(projects: readonly ProjectV2[]): Project[] {
-  return projects
-    .filter((project) => project.publicationStatus === "published")
-    .map(toLegacyProject);
+export const projects = getPublicProjects();
+
+/** Published projects are public; unlisted projects remain available by slug. */
+export function getProjectBySlug(
+  slug: string,
+  allProjects: readonly ProjectV2[] = projectV2s,
+): ProjectV2 | undefined {
+  return allProjects.find(
+    (project) =>
+      project.slug === slug &&
+      (project.publicationStatus === "published" ||
+        project.publicationStatus === "unlisted"),
+  );
 }
 
-export const projects: Project[] = toLegacyProjects(projectV2s);
+/** A repository is primary only when the data explicitly marks it as such. */
+export function getPrimaryRepository(project: ProjectV2) {
+  return project.repositories?.find((repository) => repository.isPrimary);
+}
+
+export function getProjectRobotsMetadata(project: ProjectV2) {
+  return project.publicationStatus === "unlisted"
+    ? { index: false, follow: false }
+    : undefined;
+}
