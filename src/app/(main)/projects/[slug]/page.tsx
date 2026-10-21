@@ -6,9 +6,12 @@ import { Icon } from "@iconify-icon/react";
 import { formatDistance } from "date-fns";
 import { zhTW } from "date-fns/locale";
 
-import { getGitHubStats, Contributor } from "@/lib/github";
-import { projects, typeIcon } from "@/lib/projects";
-import type { Project } from "@/lib/projects";
+import { getProjectGitHubStats, Contributor } from "@/lib/github";
+import {
+  getProjectBySlug,
+  getProjectRobotsMetadata,
+  typeIcon,
+} from "@/lib/projects";
 
 import { Badge } from "@/components/ui/badge";
 import { LanguageStatsBar } from "@/components/app/langStatsBar";
@@ -21,31 +24,28 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
 
-  const project: Project | undefined = projects.find((p) => p.slug === slug);
+  const project = getProjectBySlug(slug);
 
   if (!project) {
     return {
       title: "專案不存在",
       description: "找不到您所尋找的專案。",
+      robots: { index: false, follow: false },
     };
   }
 
-  const githubStats = project?.github
-    ? await getGitHubStats(project.github)
-    : null;
+  const githubStats = await getProjectGitHubStats(project);
+  const description = githubStats?.github_description || project.summary;
 
   return {
     title: project.title,
-    description:
-      githubStats?.github_description === null
-        ? project.description
-        : githubStats?.github_description,
+    description,
+    ...(getProjectRobotsMetadata(project) && {
+      robots: getProjectRobotsMetadata(project),
+    }),
     openGraph: {
       title: project.title,
-      description:
-        githubStats?.github_description === null
-          ? project.description
-          : githubStats?.github_description,
+      description,
       url: `https://yincheng.app/projects/${slug}`,
       type: "website",
       images: [
@@ -60,10 +60,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     twitter: {
       card: "summary_large_image",
       title: project.title,
-      description:
-        githubStats?.github_description === null
-          ? project.description
-          : githubStats?.github_description,
+      description,
       images: [`https://yincheng.app/projects/${slug}/og`],
     },
   };
@@ -72,15 +69,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ProjectPage({ params }: Props) {
   const { slug } = await params;
 
-  const project: Project | undefined = projects.find((p) => p.slug === slug);
+  const project = getProjectBySlug(slug);
 
   if (!project) {
     return notFound();
   }
 
-  const githubStats = project?.github
-    ? await getGitHubStats(project.github)
-    : null;
+  const githubStats = await getProjectGitHubStats(project);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -88,14 +83,14 @@ export default async function ProjectPage({ params }: Props) {
         {/* Project Tilte & Slug */}
         <div className="flex items-center gap-4">
           <Icon
-            icon={typeIcon[project.type] || "iconoir:repository"}
+            icon={typeIcon[project.presentation.type] || "iconoir:repository"}
             width={48}
             height={48}
           />
           <div className="flex flex-col">
             <h1 className="text-3xl font-bold">{project.title}</h1>
             {
-              project.slug != project.title
+              project.slug !== project.title
                 ? <p className="text-gray-600">{project.slug}</p>
                 : null
             }
@@ -126,16 +121,24 @@ export default async function ProjectPage({ params }: Props) {
               )}
             </div>
             {/* GitHub License */}
-            <div className="flex items-center gap-2">
-              <Link
-                href={`https://github.com/${project.github}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="link flex items-center gap-1"
-              >
-                <Icon icon="ri:github-line" />
-                GitHub
-              </Link>
+            <div className="flex flex-wrap items-center gap-2">
+              {project.repositories?.map((repository) => (
+                <Link
+                  key={repository.repository}
+                  href={`https://github.com/${repository.repository}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="link flex items-center gap-1"
+                >
+                  <Icon icon="ri:github-line" />
+                  {project.repositories?.length === 1
+                    ? "GitHub"
+                    : repository.repository}
+                  {repository.isPrimary && (
+                    <span className="text-muted-foreground text-xs">主要</span>
+                  )}
+                </Link>
+              ))}
               {githubStats?.license?.name && (
                 <div className="text-muted-foreground flex items-center gap-1">
                   <Link
@@ -174,20 +177,45 @@ export default async function ProjectPage({ params }: Props) {
       <main className="mt-8 grid w-full gap-8 md:grid-cols-4">
         <div className="min-w-0 md:col-span-3">
           <div className="prose dark:prose-invert prose-pre:bg-transparent prose-code:before:content-none prose-code:after:content-none max-w-none">
-            <GitHubReadmeView readme={githubStats?.readme} />
+            {project.repositories?.length ? (
+              <GitHubReadmeView readme={githubStats?.readme} />
+            ) : (
+              <p className="text-muted-foreground">
+                此專案尚未提供公開儲存庫或 README。
+              </p>
+            )}
           </div>
         </div>
         <div className="divide-accent mb-auto grid grid-cols-1 divide-y md:col-span-1">
           <div className="flex flex-col gap-2 py-4">
             <h2 className="text-lg font-semibold">簡介</h2>
             <div className="mt-2 flex flex-wrap gap-2">
-              {project?.description
-                ? <p>{project.description}</p>
+              {project.summary
+                ? <p>{project.summary}</p>
                 : githubStats?.github_description
                   ? <p>{githubStats.github_description}</p>
                   : <p className="text-muted-foreground">無簡介</p>}
             </div>
           </div>
+
+          {project.contributionEvidence?.length ? (
+            <div className="flex flex-col gap-2 py-4">
+              <h2 className="text-lg font-semibold">相關連結</h2>
+              <div className="mt-2 flex flex-col gap-2">
+                {project.contributionEvidence.map((evidence) => (
+                  <Link
+                    key={`${evidence.label}-${evidence.href}`}
+                    href={evidence.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="link"
+                  >
+                    {evidence.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ) : null}
 
           <div className="flex flex-col gap-2 py-4">
             <h2 className="text-lg font-semibold">主題</h2>

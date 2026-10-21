@@ -18,12 +18,12 @@ export type ProjectV2 = {
     | "maintained"
     | "completed"
     | "archived";
-  /** Phase 1-A sends only published records through the legacy pages. */
+  /** Published records are listed; unlisted records resolve by direct URL only. */
   publicationStatus: "published" | "unlisted" | "draft" | "private";
   attribution?:
     | { kind: "individual"; name: string; role?: string }
     | { kind: "team"; name: string; role?: string };
-  /** Public repositories in display order. At most one may be primary. */
+  /** Public repositories in display order. Primary selection is explicit. */
   repositories?: readonly {
     provider: "github";
     repository: string;

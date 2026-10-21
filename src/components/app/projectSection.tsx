@@ -1,22 +1,17 @@
 import { ProjectCard } from "@/components/app/projectCard";
 import { projects } from "@/lib/projects";
-import { getGitHubStats } from "@/lib/github";
+import { getProjectGitHubStats } from "@/lib/github";
 import { SectionTitle } from "@/components/app/sectionTitle";
 
 export async function ProjectSection() {
-  const projectsWithStats = await Promise.all(
-    projects.map(async (project) => {
-      if (project.github) {
-        const stats = await getGitHubStats(project.github);
-        if (stats) {
-          return { ...project, ...stats };
-        }
-      }
-      return project;
-    }),
+  const featuredProjects = await Promise.all(
+    projects
+      .filter((project) => project.presentation.featured)
+      .map(async (project) => {
+        const stats = await getProjectGitHubStats(project);
+        return { project, stats };
+      }),
   );
-
-  const featuredProjects = projectsWithStats.filter((p) => p.featured);
 
   return (
     <section className="px-4 py-40 select-none">
@@ -27,9 +22,11 @@ export async function ProjectSection() {
         />
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {featuredProjects.sort((a, b) => a.title.localeCompare(b.title)).map((project) => (
-            <ProjectCard key={project.slug} project={project} />
-          ))}
+          {[...featuredProjects]
+            .sort((a, b) => a.project.title.localeCompare(b.project.title))
+            .map(({ project, stats }) => (
+              <ProjectCard key={project.slug} project={project} stats={stats} />
+            ))}
         </div>
 
         {featuredProjects.length === 0 && (

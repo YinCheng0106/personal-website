@@ -7,6 +7,7 @@ import {
   getAllTags,
 } from "@/lib/posts";
 import { siteConfig } from "@/lib/site";
+import { projects } from "@/lib/projects";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = siteConfig.url;
@@ -31,6 +32,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: new Date(post.updated ?? post.date),
   }));
 
+  const projectRoutes: MetadataRoute.Sitemap = projects.map((project) => ({
+    url: `${base}/projects/${project.slug}`,
+    lastModified: now,
+  }));
+
   const categoryRoutes: MetadataRoute.Sitemap = getAllCategories().map(
     (category) => ({
       url: `${base}/blog/category/${encodeURIComponent(category.name)}`,
@@ -51,6 +57,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     ...staticRoutes,
     ...postRoutes,
+    ...projectRoutes,
     ...categoryRoutes,
     ...tagRoutes,
     ...seriesRoutes,
