@@ -1,4 +1,5 @@
 import { describe, expect, spyOn, test } from "bun:test";
+import { readFileSync } from "node:fs";
 
 import GitHubReadmeView, {
   renderGitHubReadme,
@@ -30,6 +31,42 @@ function render(readme: unknown): string | null {
 }
 
 describe("GitHub README rendering", () => {
+  test("keeps MDX expressions inert and strips executable HTML payloads", () => {
+    const html = render(makeReadme(`
+# External Markdown
+
+{21 * 2}
+
+{(() => { throw new Error("README_MDX_MUST_NOT_EXECUTE") })()}
+
+<iframe srcdoc="<script>alert(1)</script>"></iframe>
+
+<img src="x" onerror="alert(1)">
+
+<a href="javascript:alert(1)">unsafe HTML link</a>
+
+[unsafe Markdown](javascript:alert%281%29)
+`));
+    expect(html).toContain("{21 * 2}");
+    expect(html).toContain("README_MDX_MUST_NOT_EXECUTE");
+    expect(html).not.toMatch(/<iframe|<script|<img|onerror=|srcdoc=|javascript:/i);
+  });
+
+  test("keeps the README renderer and URL helpers outside the trusted MDX pipeline", () => {
+    for (const file of [
+      "src/components/app/githubReadme.tsx",
+      "src/lib/github-readme.ts",
+    ]) {
+      const source = readFileSync(file, "utf8");
+      expect(source).not.toMatch(/next-mdx-remote|compileMDX|MDXRemote|case-studies/);
+    }
+    const renderer = readFileSync("src/components/app/githubReadme.tsx", "utf8");
+    expect(renderer).toContain('from "react-markdown"');
+    expect(renderer).toContain('from "remark-gfm"');
+    expect(renderer).toContain("skipHtml");
+    expect(renderer).toContain("urlTransform={createGitHubReadmeUrlTransform(");
+  });
+
   test("renders the YINLA HTML comment fixture without an MDX error", () => {
     const html = render(
       makeReadme(`<!-- YINLA README build note -->\n\n# YINLA Bot\n\nA Discord bot.`),
