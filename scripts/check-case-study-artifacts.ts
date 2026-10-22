@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
-import { join } from "node:path";
+import { join, resolve, dirname } from "node:path";
 
 async function filesUnder(directory: string): Promise<string[]> {
   const files: string[] = [];
@@ -41,8 +41,33 @@ const appPaths = JSON.parse(
 assert.ok(Object.keys(appPaths).length > 0);
 assert.equal(
   Object.keys(appPaths).some((path) => /case-stud/.test(path)),
-  false,
+  true,
 );
+
+// The article must be packaged for actual request-time fs reads, not merely
+// present in the source checkout. Next trace paths are relative to each trace.
+const contentPath = "src/contents/case-studies/quotamew.mdx";
+for (const page of ["page", "case-study/page"]) {
+  const tracePath = `.next/server/app/(main)/projects/[slug]/${page}.js.nft.json`;
+  const trace = JSON.parse(await readFile(tracePath, "utf8"));
+  assert.ok(
+    trace.files.some(
+      (file: string) =>
+        resolve(dirname(tracePath), file) === resolve(contentPath),
+    ),
+    tracePath,
+  );
+}
+assert.equal(
+  await readFile(`.next/standalone/${contentPath}`, "utf8"),
+  await readFile(contentPath, "utf8"),
+);
+for (const file of clientFiles) {
+  assert.doesNotMatch(
+    await readFile(file, "utf8"),
+    /其實一開始，我沒有特別打算要開發 macOS App|src\/contents\/case-studies/,
+  );
+}
 
 const routes = JSON.parse(await readFile(".next/routes-manifest.json", "utf8"));
 for (const suffix of ["", "/og"]) {

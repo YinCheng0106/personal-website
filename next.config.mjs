@@ -30,6 +30,12 @@ const nextConfig = {
     remotePatterns: [{ protocol: "https", hostname: "**" }],
   },
   output: "standalone",
+  // Literal allowlisted content only; needed by SSR readers and gated links.
+  outputFileTracingIncludes: {
+    "/projects/*": ["./src/contents/case-studies/quotamew.mdx"],
+    "/projects/*/case-study": ["./src/contents/case-studies/quotamew.mdx"],
+    "/sitemap.xml": ["./src/contents/case-studies/quotamew.mdx"],
+  },
   serverExternalPackages: ["@takumi-rs/core"], 
 };
 

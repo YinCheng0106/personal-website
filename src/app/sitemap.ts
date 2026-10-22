@@ -8,8 +8,9 @@ import {
 } from "@/lib/posts";
 import { siteConfig } from "@/lib/site";
 import { projects } from "@/lib/projects";
+import { getPublicCaseStudies } from "@/lib/case-studies";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteConfig.url;
   const now = new Date();
 
@@ -37,6 +38,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: now,
   }));
 
+  const caseStudyRoutes: MetadataRoute.Sitemap = (
+    await getPublicCaseStudies()
+  ).map(({ href }) => ({ url: `${base}${href}` }));
+
   const categoryRoutes: MetadataRoute.Sitemap = getAllCategories().map(
     (category) => ({
       url: `${base}/blog/category/${encodeURIComponent(category.name)}`,
@@ -58,6 +63,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...staticRoutes,
     ...postRoutes,
     ...projectRoutes,
+    ...caseStudyRoutes,
     ...categoryRoutes,
     ...tagRoutes,
     ...seriesRoutes,
