@@ -16,6 +16,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { LanguageStatsBar } from "@/components/app/langStatsBar";
 import GitHubReadmeView from "@/components/app/githubReadme";
+import { getPublicCaseStudy } from "@/lib/case-studies";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -77,7 +78,10 @@ export default async function ProjectPage({ params }: Props) {
     return notFound();
   }
 
-  const githubStats = await getProjectGitHubStats(project);
+  const [githubStats, caseStudy] = await Promise.all([
+    getProjectGitHubStats(project),
+    getPublicCaseStudy(project.id),
+  ]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -175,6 +179,14 @@ export default async function ProjectPage({ params }: Props) {
           )}
         </div>
       </header>
+
+      {caseStudy && (
+        <p className="mt-6">
+          <Link href={caseStudy.href} className="link underline underline-offset-4">
+            閱讀 {project.title} 開發紀錄
+          </Link>
+        </p>
+      )}
 
       <main className="mt-8 grid w-full gap-8 md:grid-cols-4">
         <div className="min-w-0 md:col-span-3">

@@ -8,6 +8,8 @@ import rehypeSlug from "rehype-slug";
 
 import { projectV2s } from "@/lib/project-v2-data";
 import type { ProjectV2 } from "@/lib/project-v2";
+import { getProjectBySlug } from "@/lib/projects";
+import { caseStudyComponents } from "@/components/mdx/case-study-components";
 
 type ArticleApproval = "draft" | "approved";
 type Entry = {
@@ -23,7 +25,7 @@ type Entry = {
  */
 const registry: Readonly<Record<string, Entry>> = {
   quotamew: {
-    approval: "draft",
+    approval: "approved",
     read: () =>
       readFile(
         join(process.cwd(), "src/contents/case-studies/quotamew.mdx"),
@@ -63,6 +65,7 @@ async function compileLocalContent(source: string) {
   // MDX is executable trusted code, not a sanitizer for external Markdown.
   const { content } = await compileMDX({
     source,
+    components: caseStudyComponents,
     options: {
       parseFrontmatter: false,
       blockJS: true,
@@ -106,9 +109,9 @@ export async function validateCaseStudyContent(
 }
 
 /**
- * Future public-page entry point. Gate BEFORE reading or compiling content,
+ * Public-page entry point. Gate BEFORE reading or compiling content,
  * including in development. No preview flag or approval override is exposed.
- * Metadata comes exclusively from the original Project v2 record.
+ * Product identity stays in Project v2; the article heading supplies its title.
  */
 export async function getPublicCaseStudy(projectId: unknown) {
   const match = lookup(projectId);
@@ -120,12 +123,37 @@ export async function getPublicCaseStudy(projectId: unknown) {
   }
   const source = await readSource(match.entry);
   if (source === null) return null;
+  // Article metadata is derived from this same approved source, not frontmatter
+  // or a second product record. Require one plain-text title and opening prose.
+  const title = source.match(/^# ([^\n]+)\n/)?.[1].trim();
+  const opening = source
+    .split(/\n\s*\n/)
+    .find((paragraph) => paragraph.trim() && !paragraph.trim().startsWith("#"))
+    ?.trim();
+  if (!title || !opening) return null;
   try {
     return {
       project: match.project,
+      title,
+      description: `${match.project.summary} ${opening}`,
+      href: `/projects/${match.project.slug}/case-study`,
       content: await compileLocalContent(source),
     };
   } catch {
     return null;
   }
+}
+
+/** Resolve route identity through Project v2, then use its stable content ID. */
+export async function getPublicCaseStudyBySlug(slug: string) {
+  const project = getProjectBySlug(slug);
+  return project ? getPublicCaseStudy(project.id) : null;
+}
+
+/** Discovery uses the same approval, visibility and readable-content gate. */
+export async function getPublicCaseStudies() {
+  const articles = await Promise.all(
+    projectV2s.map((project) => getPublicCaseStudy(project.id)),
+  );
+  return articles.filter((article) => article !== null);
 }

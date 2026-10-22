@@ -77,7 +77,7 @@ const sitemap = await get("/sitemap.xml");
 assert.equal(sitemap.status, 200);
 const xml = await sitemap.text();
 const projectUrls = [
-  ...xml.matchAll(/<loc>(https:\/\/yincheng\.app\/projects\/[^<]+)<\/loc>/g),
+  ...xml.matchAll(/<loc>(https:\/\/yincheng\.app\/projects\/[^/<]+)<\/loc>/g),
 ].map(([, url]) => url);
 assert.equal(projectUrls.length, 6);
 assert.equal(projectUrls.filter((url) => url.endsWith(canonical)).length, 1);

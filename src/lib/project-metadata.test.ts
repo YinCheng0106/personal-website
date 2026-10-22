@@ -1,8 +1,13 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, mock, test } from "bun:test";
 
-import ProjectPage, { generateMetadata } from "@/app/(main)/projects/[slug]/page";
-import sitemap from "@/app/sitemap";
 import { projectV2s } from "@/lib/project-v2-data";
+
+mock.module("server-only", () => ({}));
+
+const { default: ProjectPage, generateMetadata } = await import(
+  "@/app/(main)/projects/[slug]/page"
+);
+const { default: sitemap } = await import("@/app/sitemap");
 
 const metadataFor = (slug: string) =>
   generateMetadata({ params: Promise.resolve({ slug }) });
@@ -59,7 +64,9 @@ describe("project detail metadata", () => {
 
     const quotaMew = await metadataFor("quotamew");
     expect(quotaMew.description).toContain("原生 macOS 選單列 App");
-    expect(quotaMew.description).toContain("Claude Code 整合仍屬實驗性、未驗證");
+    expect(quotaMew.description).toContain(
+      "Claude Code 整合仍屬實驗性、未驗證",
+    );
   });
 
   test("does not call GitHub when local metadata is available", async () => {
@@ -110,8 +117,8 @@ describe("project detail metadata", () => {
     expect(metadata.robots).toEqual({ index: false, follow: false });
   });
 
-  test("lists canonical YINLA exactly once and omits its old website URL", () => {
-    const urls = sitemap().map(({ url }) => url);
+  test("lists canonical YINLA exactly once and omits its old website URL", async () => {
+    const urls = (await sitemap()).map(({ url }) => url);
     expect(
       urls.filter((url) => url === "https://yincheng.app/projects/yinla-bot"),
     ).toHaveLength(1);
