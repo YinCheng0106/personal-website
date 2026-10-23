@@ -24,6 +24,8 @@ const { default: sitemap } = await import("@/app/sitemap");
 const { generateMetadata } = await import("@/app/(main)/projects/[slug]/page");
 
 const pilot = projectV2s.find(({ id }) => id === "quotamew")!;
+const dpip = projectV2s.find(({ id }) => id === "dpip")!;
+const approved = [dpip, pilot];
 const marker = "CASE_STUDY_QUOTAMEW_INTERNAL_FIXTURE";
 
 describe("trusted Case Study infrastructure", () => {
@@ -78,6 +80,129 @@ describe("trusted Case Study infrastructure", () => {
     expect(source).not.toMatch(/\/Users\/|\/home\/|data-case-study-fixture/);
   });
 
+  test("renders the approved DPIP story, team attribution, seven PRs and limitations", async () => {
+    expect(await validateCaseStudyContent(dpip.id)).toBe("valid");
+    const article = (await getPublicCaseStudy(dpip.id))!;
+    expect(article.project).toBe(dpip);
+    const html = renderToStaticMarkup(article.content);
+    expect(html.match(/<h1\b/g)).toHaveLength(1);
+    expect(html.match(/<h2\b/g)).toHaveLength(9);
+    for (const text of [
+      "這個功能是我自己提出來的。",
+      "DPIP（ExpTechTW 團隊專案）",
+      "App Group 共享天氣快照",
+      "Platform Channel",
+      "未滿 30 分鐘",
+      "30 分鐘至未滿 120 分鐘",
+      "達 120 分鐘",
+      "當部分資料不存在時，也不能為了湊滿畫面而自己補出假的預報。",
+      "按下刷新按鈕，不代表 iOS 就一定會立即取得最新資料。",
+      "並不是說 Apple 天氣一定比較不準",
+      "實際準確度還是需要透過客觀比較才能判斷",
+      "但這不代表所有情況都已經完成測試。",
+      "DPIP 本身是團隊共同開發的產品",
+      "我希望未來還能繼續探索更多 iOS 原生功能",
+    ])
+      expect(html).toContain(text);
+    const links = [
+      ...html.matchAll(
+        /href="(https:\/\/github.com\/ExpTechTW\/DPIP\/pull\/\d+)"/g,
+      ),
+    ].map(([, href]) => href);
+    expect([...new Set(links)].sort()).toEqual(
+      [576, 579, 580, 582, 607, 608, 629]
+        .map((id) => `https://github.com/ExpTechTW/DPIP/pull/${id}`)
+        .sort(),
+    );
+    expect(html).toContain('role="region"');
+    expect(html).toContain('tabindex="0"');
+    expect(html).not.toMatch(
+      /<img|<video|<iframe|<svg|CASE_STUDY_|synthetic fixture/,
+    );
+    const source = await fs.readFile(
+      "src/contents/case-studies/dpip.mdx",
+      "utf8",
+    );
+    expect(source).not.toMatch(/^---|!\[|\/Users\/|\/home\//);
+    const metadata = await articleMetadata({
+      params: Promise.resolve({ slug: dpip.slug }),
+    });
+    expect(metadata.title).toBe(
+      "DPIP｜第一次把 Flutter 跟 SwiftUI 結合，開發 iOS 天氣 Widget",
+    );
+    expect(metadata.description).toBe(
+      `${dpip.summary} 其實一開始，DPIP 團隊並沒有特別規劃要開發 iOS 天氣 Widget。`,
+    );
+    expect(metadata.description).not.toMatch(
+      /專案：|主要技術：|個人參與：|\*\*/,
+    );
+    expect(metadata.alternates?.canonical).toBe(
+      "https://yincheng.app/projects/dpip/case-study",
+    );
+    expect(metadata.openGraph).toMatchObject({
+      type: "article",
+      url: "https://yincheng.app/projects/dpip/case-study",
+      title: article.title,
+      description: article.description,
+    });
+    expect(metadata.twitter).toMatchObject({
+      title: article.title,
+      description: article.description,
+      images: ["https://yincheng.app/projects/dpip/og"],
+    });
+  });
+
+  test("each missing or invalid article fails closed without disabling the other", async () => {
+    const originalRead = fs.readFile;
+    for (const project of approved) {
+      const other = approved.find((item) => item !== project)!;
+      for (const replacement of [
+        null,
+        "  \n",
+        "# Valid title\n\n<Unclosed",
+        "# Labels only\n\n**專案：** DPIP",
+      ]) {
+        const read = spyOn(fs, "readFile").mockImplementation(((
+          ...args: Parameters<typeof fs.readFile>
+        ) => {
+          if (String(args[0]).endsWith(`/${project.id}.mdx`)) {
+            if (replacement === null)
+              return Promise.reject(new Error("/Users/private/internal.mdx"));
+            const encoding =
+              typeof args[1] === "string" ? args[1] : args[1]?.encoding;
+            return Promise.resolve(
+              encoding ? replacement : Buffer.from(replacement),
+            );
+          }
+          return originalRead(...args);
+        }) as typeof fs.readFile);
+        try {
+          expect(await getPublicCaseStudy(project.id)).toBeNull();
+          expect((await getPublicCaseStudy(other.id))?.project).toBe(other);
+          expect(
+            (await getPublicCaseStudies()).map(({ project }) => project.id),
+          ).toEqual([other.id]);
+          const urls = (await sitemap())
+            .filter(({ url }) => url.endsWith("/case-study"))
+            .map(({ url }) => url);
+          expect(urls).toEqual([
+            `https://yincheng.app/projects/${other.slug}/case-study`,
+          ]);
+          await expect(
+            CaseStudyPage({ params: Promise.resolve({ slug: project.slug }) }),
+          ).rejects.toThrow("NEXT_HTTP_ERROR_FALLBACK;404");
+          await expect(
+            articleMetadata({
+              params: Promise.resolve({ slug: project.slug }),
+            }),
+          ).rejects.toThrow("NEXT_HTTP_ERROR_FALLBACK;404");
+        } finally {
+          read.mockRestore();
+        }
+      }
+    }
+  });
+
   test("uses the stable ID even if a product slug changes", async () => {
     const slug = pilot.slug;
     pilot.slug = "renamed-product";
@@ -96,6 +221,10 @@ describe("trusted Case Study infrastructure", () => {
     try {
       for (const id of [
         "../quotamew",
+        "../dpip",
+        "dpip.mdx",
+        "DPIP",
+        "dpip?preview=true",
         "../../.env",
         "/etc/passwd",
         "quotamew.mdx",
@@ -128,25 +257,38 @@ describe("trusted Case Study infrastructure", () => {
   });
 
   test("blocks draft, private and unlisted products before reading or discovery", async () => {
-    const previous = pilot.publicationStatus;
-    const read = spyOn(fs, "readFile");
-    try {
-      for (const status of ["draft", "private", "unlisted"] as const) {
-        pilot.publicationStatus = status;
-        expect(await getPublicCaseStudy(pilot.id)).toBeNull();
-        expect(await getPublicCaseStudyBySlug(pilot.slug)).toBeNull();
-        expect(await getPublicCaseStudies()).toEqual([]);
-        expect(
-          (await sitemap()).some(({ url }) => url.endsWith("/case-study")),
-        ).toBe(false);
-        await expect(
-          CaseStudyPage({ params: Promise.resolve({ slug: pilot.slug }) }),
-        ).rejects.toThrow("NEXT_HTTP_ERROR_FALLBACK;404");
+    for (const project of approved) {
+      const previous = project.publicationStatus;
+      const read = spyOn(fs, "readFile");
+      try {
+        for (const status of ["draft", "private", "unlisted"] as const) {
+          read.mockClear();
+          project.publicationStatus = status;
+          expect(await getPublicCaseStudy(project.id)).toBeNull();
+          expect(await getPublicCaseStudyBySlug(project.slug)).toBeNull();
+          expect(
+            (await getPublicCaseStudies()).map(({ project }) => project.id),
+          ).toEqual(
+            approved.filter((item) => item !== project).map(({ id }) => id),
+          );
+          expect(
+            (await sitemap()).some(({ url }) =>
+              url.endsWith(`/projects/${project.slug}/case-study`),
+            ),
+          ).toBe(false);
+          await expect(
+            CaseStudyPage({ params: Promise.resolve({ slug: project.slug }) }),
+          ).rejects.toThrow("NEXT_HTTP_ERROR_FALLBACK;404");
+          expect(
+            read.mock.calls.some(([path]) =>
+              String(path).endsWith(`/${project.id}.mdx`),
+            ),
+          ).toBe(false);
+        }
+      } finally {
+        project.publicationStatus = previous;
+        read.mockRestore();
       }
-      expect(read).not.toHaveBeenCalled();
-    } finally {
-      pilot.publicationStatus = previous;
-      read.mockRestore();
     }
   });
 
@@ -166,7 +308,7 @@ describe("trusted Case Study infrastructure", () => {
   });
 
   test("keeps published projects with no article, media or repositories valid", async () => {
-    const project = projectV2s.find(({ id }) => id === "dpip")!;
+    const project = projectV2s.find(({ id }) => id === "personal-website")!;
     expect(project.media).toBeUndefined();
     expect(getProjectBySlug(project.slug)).toBe(project);
     expect(await getPublicCaseStudy(project.id)).toBeNull();
@@ -251,25 +393,39 @@ describe("trusted Case Study infrastructure", () => {
           })
         ).openGraph,
       ).toMatchObject({ type: "article" });
+      const dpipPage = await CaseStudyPage({
+        params: Promise.resolve({ slug: dpip.slug }),
+      });
+      expect(renderToStaticMarkup(dpipPage)).toContain(
+        "這個功能是我自己提出來的。",
+      );
+      expect(
+        (
+          await articleMetadata({
+            params: Promise.resolve({ slug: dpip.slug }),
+          })
+        ).openGraph,
+      ).toMatchObject({ type: "article" });
       expect(fetch).not.toHaveBeenCalled();
     } finally {
       fetch.mockRestore();
     }
   });
 
-  test("publishes only the QuotaMew article and preserves project metadata", async () => {
+  test("publishes only DPIP and QuotaMew and preserves project metadata", async () => {
     const urls = (await sitemap()).map(({ url }) => url);
     expect(urls.filter((url) => /\/projects\/[^/]+$/.test(url))).toHaveLength(
       6,
     );
     expect(urls.filter((url) => url.includes("/case-study"))).toEqual([
+      "https://yincheng.app/projects/dpip/case-study",
       "https://yincheng.app/projects/quotamew/case-study",
     ]);
     expect(
       (await getPublicCaseStudies()).map(({ project }) => project.id),
-    ).toEqual(["quotamew"]);
+    ).toEqual(["dpip", "quotamew"]);
     for (const project of projectV2s) {
-      if (project.id !== pilot.id) {
+      if (!approved.includes(project)) {
         expect(await getPublicCaseStudy(project.id)).toBeNull();
         await expect(
           CaseStudyPage({ params: Promise.resolve({ slug: project.slug }) }),

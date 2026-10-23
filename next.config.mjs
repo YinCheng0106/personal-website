@@ -32,9 +32,18 @@ const nextConfig = {
   output: "standalone",
   // Literal allowlisted content only; needed by SSR readers and gated links.
   outputFileTracingIncludes: {
-    "/projects/*": ["./src/contents/case-studies/quotamew.mdx"],
-    "/projects/*/case-study": ["./src/contents/case-studies/quotamew.mdx"],
-    "/sitemap.xml": ["./src/contents/case-studies/quotamew.mdx"],
+    "/projects/*": [
+      "./src/contents/case-studies/quotamew.mdx",
+      "./src/contents/case-studies/dpip.mdx",
+    ],
+    "/projects/*/case-study": [
+      "./src/contents/case-studies/quotamew.mdx",
+      "./src/contents/case-studies/dpip.mdx",
+    ],
+    "/sitemap.xml": [
+      "./src/contents/case-studies/quotamew.mdx",
+      "./src/contents/case-studies/dpip.mdx",
+    ],
   },
   serverExternalPackages: ["@takumi-rs/core"], 
 };

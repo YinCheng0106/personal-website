@@ -25,7 +25,7 @@ for (const file of [...clientFiles, ...publicDocuments]) {
   const source = await readFile(file, "utf8");
   assert.doesNotMatch(
     source,
-    /CASE_STUDY_QUOTAMEW_INTERNAL_FIXTURE|data-case-study-fixture|This synthetic fixture checks the local content pipeline/,
+    /CASE_STUDY_[A-Z0-9_]+_INTERNAL_FIXTURE|data-case-study-fixture|This synthetic fixture checks the local content pipeline/,
     `internal content leaked into ${file}`,
   );
   assert.doesNotMatch(
@@ -46,26 +46,49 @@ assert.equal(
 
 // The article must be packaged for actual request-time fs reads, not merely
 // present in the source checkout. Next trace paths are relative to each trace.
-const contentPath = "src/contents/case-studies/quotamew.mdx";
-for (const page of ["page", "case-study/page"]) {
-  const tracePath = `.next/server/app/(main)/projects/[slug]/${page}.js.nft.json`;
-  const trace = JSON.parse(await readFile(tracePath, "utf8"));
-  assert.ok(
-    trace.files.some(
-      (file: string) =>
-        resolve(dirname(tracePath), file) === resolve(contentPath),
-    ),
-    tracePath,
+const contentPaths = [
+  "src/contents/case-studies/quotamew.mdx",
+  "src/contents/case-studies/dpip.mdx",
+];
+for (const contentPath of contentPaths) {
+  for (const tracePath of [
+    ".next/server/app/(main)/projects/[slug]/page.js.nft.json",
+    ".next/server/app/(main)/projects/[slug]/case-study/page.js.nft.json",
+    ".next/server/app/sitemap.xml/route.js.nft.json",
+  ]) {
+    const trace = JSON.parse(await readFile(tracePath, "utf8"));
+    assert.ok(
+      trace.files.some(
+        (file: string) =>
+          resolve(dirname(tracePath), file) === resolve(contentPath),
+      ),
+      tracePath,
+    );
+    const tracedArticles = trace.files
+      .map((file: string) => resolve(dirname(tracePath), file))
+      .filter(
+        (file: string) =>
+          file.includes("/src/contents/case-studies/") && file.endsWith(".mdx"),
+      );
+    assert.deepEqual(
+      tracedArticles.sort(),
+      contentPaths.map((path) => resolve(path)).sort(),
+    );
+  }
+  assert.equal(
+    await readFile(`.next/standalone/${contentPath}`, "utf8"),
+    await readFile(contentPath, "utf8"),
   );
 }
-assert.equal(
-  await readFile(`.next/standalone/${contentPath}`, "utf8"),
-  await readFile(contentPath, "utf8"),
+assert.deepEqual(
+  (await filesUnder(".next/standalone/src/contents/case-studies")).sort(),
+  contentPaths.map((path) => `.next/standalone/${path}`).sort(),
+  "standalone must contain exactly the two allowlisted articles",
 );
 for (const file of clientFiles) {
   assert.doesNotMatch(
     await readFile(file, "utf8"),
-    /其實一開始，我沒有特別打算要開發 macOS App|src\/contents\/case-studies/,
+    /其實一開始，我沒有特別打算要開發 macOS App|這個功能是我自己提出來的。|src\/contents\/case-studies/,
   );
 }
 

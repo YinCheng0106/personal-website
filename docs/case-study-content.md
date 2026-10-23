@@ -34,25 +34,35 @@ the blog MDX compiler.
   compilation. It returns the original Project v2 record plus a render tree, or
   `null` on missing/empty/unreadable/malformed content. It has no preview flag,
   environment bypass or approval override. Error messages and paths are not
-  exposed. The current approved article is verified through actual SSR rendering.
+  exposed. Both approved articles are verified through actual SSR rendering.
 
 Unlisted products keep their existing direct project-page access and noindex
 policy; their Case Studies are conservatively ineligible, as are draft/private
 products. Diagnostic APIs are internal exports, not HTTP APIs or Server Actions.
 
-## QuotaMew publication candidate (Phase 2-C3b-1)
+## Approved articles (Phase 2-C3c-3a)
 
-Only `quotamew` is allowlisted and explicitly `approved`. Its source is the
+Both `quotamew` and `dpip` are allowlisted by canonical Project v2 ID and explicitly
+`approved`. QuotaMew remains byte-identical to its merged source, the
 user-supplied Traditional Chinese v1.1 article, with Markdown headings, paragraph
 breaks, lists and the supplied memory table restored. There is no frontmatter,
 new media, duplicate product record or synthetic fixture content. First-person
 experience, AI assistance, experimental Claude Code limitations, Apple Developer
 Program limitations and the approximate 12 MB / 50 MB observations remain intact.
-This is a reviewed publication candidate in code, not an announcement of deployment.
+QuotaMew was merged before this phase. DPIP is a local implementation candidate;
+this phase does not commit, push, open a PR, merge or deploy it.
+
+DPIP uses the complete user-approved Traditional Chinese v2.0 text, including
+first-person proposal and development, ExpTechTW team ownership, seven PR links,
+weather-accuracy qualifications and testing limitations. Only two Markdown hard
+breaks are normalized from trailing spaces to backslashes; prose is unchanged.
+No external media, generated imagery, diagrams or additional claims are added.
+Its opening project/technology/contribution labels are article body text, not
+frontmatter or another product record. Project-level identity stays in Project v2.
 
 `/projects/[slug]/case-study` resolves the canonical product using Project v2,
-then looks up repository-local content by its stable ID. Only QuotaMew currently
-returns an article. Missing, unreadable, empty or invalid content returns 404;
+then looks up repository-local content by its stable ID. Only DPIP and QuotaMew
+currently return articles. Missing, unreadable, empty or invalid content returns 404;
 other IDs and project visibility states are ineligible. No preview bypass exists.
 The page uses the Node runtime with `force-dynamic`, so its local MDX is read and
 compiled on the server at request time. Current article Markdown is compiled and
@@ -60,7 +70,10 @@ rendered in tests; changes to executable MDX or custom components require renewe
 code review and render verification, not merely a successful compilation.
 
 The article H1 supplies its metadata title; description combines the canonical
-Project v2 summary with the article's opening paragraph. Canonical, Open Graph
+Project v2 summary with the first prose paragraph beginning with a letter or
+number. Markdown headings, bold project labels, tables and bullets are skipped,
+so DPIP's opening inline labels do not become an awkward SEO description.
+Canonical, Open Graph
 (type `article`) and Twitter metadata use the article URL and the existing product
 OG image. Product metadata definitions stay unchanged. The product page adds only
 a gated text link; sitemap includes only articles accepted by the same public
@@ -74,9 +87,10 @@ GitHub README rendering and project attribution are unchanged.
 
 ## Runtime packaging
 
-`next.config.mjs` explicitly traces the literal QuotaMew MDX for project pages,
-Case Study pages and sitemap. The build artifact checker verifies the article and
-project page `.nft.json` entries and byte equality of the standalone MDX copy.
+`next.config.mjs` explicitly traces the two literal DPIP and QuotaMew MDX paths
+for project pages, Case Study pages and sitemap. The build artifact checker
+verifies all three `.nft.json` entries, exact two-article inclusion and byte
+equality of both standalone MDX copies.
 The source is server-only and is never served as a raw public asset. See
 [Next.js output tracing](https://nextjs.org/docs/app/api-reference/config/next-config-js/output).
 For standalone verification, copy `public` and `.next/static` into the generated
@@ -261,3 +275,40 @@ no production deployment is authorized in this phase.
   are release-stage checks recorded in the PR and final acceptance report,
   separate from these local results. No merge or Production deployment is
   authorized by this review.
+
+
+## Phase 2-C3c-3a local implementation
+
+- Base: fetched `origin/main` at `bca858a36580a094ca465cef21df19464cf29e3f`,
+  including QuotaMew's PR #7 merge. Branch: `feat/dpip-widget-case-study` in a new
+  isolated worktree; all seven implementation/documentation files are uncommitted.
+- Validation: 58 tests passed, 574 assertions, no failures. ESLint has zero
+  errors and the same three existing warnings. TypeScript, production build,
+  artifact checks and whitespace checks passed. Dependencies are unchanged.
+- Artifacts: 160 client files and 176 public documents scanned. Both literal MDX
+  paths appear in project, article and sitemap traces. Standalone contains
+  exactly the two approved articles, byte-identical to source. No raw article
+  source or internal fixture markers were found in client/public artifacts.
+- Both `next start` and a standalone package relocated outside the checkout pass
+  the Case Study and YINLA route suites. Complete article text is checked line by
+  line in actual SSR HTML. Both articles return 200; the other four remain 404.
+  All six project pages, four featured projects, canonicals, gated article links,
+  metadata, two-entry article sitemap and YINLA 308 redirects are preserved.
+- Injected GitHub 503 positive controls fired on both servers. Both complete
+  articles still render without additional GitHub requests. Missing and malformed
+  content controls change only the relocated package: each article independently
+  returns 404, hides its project link and leaves the other article/link working.
+  Original package bytes are restored and article 200 is rechecked afterward.
+- Chromium checks cover both articles at 320, 375 and 1280px in light/dark mode:
+  12 cases, no page overflow, keyboard-focusable tables, horizontal table scrolling
+  at 320px and no page JavaScript errors. QA images are external local evidence,
+  not published media. No physical phone or Safari/Firefox acceptance is claimed.
+- Original checkout: all 101 tracked/untracked file hashes, raw index hash, HEAD,
+  branch and full status match preflight. Photos work is untouched. Project v2,
+  QuotaMew's body, shared typography and README trust-boundary files match base.
+- Limitations: sitemap remains a build-time artifact. Next prints its standalone
+  warning for `next start`; the supported standalone entry point passes separately.
+  Guessed and unrelated unknown blog URLs return 404 while logging the previously
+  documented `NoFallbackError`; blog code is unchanged. No deployment was tested.
+- Verdict: **READY FOR PR PREPARATION**. No commit, push, PR, merge, deployment or
+  deployment-setting change was performed.

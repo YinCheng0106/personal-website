@@ -24,6 +24,14 @@ type Entry = {
  * Approval is independent of product publication and requires editorial review.
  */
 const registry: Readonly<Record<string, Entry>> = {
+  dpip: {
+    approval: "approved",
+    read: () =>
+      readFile(
+        join(process.cwd(), "src/contents/case-studies/dpip.mdx"),
+        "utf8",
+      ),
+  },
   quotamew: {
     approval: "approved",
     read: () =>
@@ -128,7 +136,9 @@ export async function getPublicCaseStudy(projectId: unknown) {
   const title = source.match(/^# ([^\n]+)\n/)?.[1].trim();
   const opening = source
     .split(/\n\s*\n/)
-    .find((paragraph) => paragraph.trim() && !paragraph.trim().startsWith("#"))
+    // Skip Markdown headings, bold label blocks, bullets and tables. In particular,
+    // the approved DPIP article opens with bold project/contribution labels.
+    .find((paragraph) => /^[\p{L}\p{N}]/u.test(paragraph.trim()))
     ?.trim();
   if (!title || !opening) return null;
   try {
