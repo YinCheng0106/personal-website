@@ -162,6 +162,70 @@ assert.doesNotMatch(
   /src\/contents\/case-studies|internal path|ENOENT|EACCES/,
 );
 
+const personaiPath = "/projects/personai-api/case-study";
+const personaiTitle = "PersonAI｜從人體關鍵點到運動計次，開發 AI 智能健身教練";
+const personaiCanonical = `https://yincheng.app${personaiPath}`;
+const personaiHtml = await get(personaiPath, 200);
+await assertCompleteArticle("personai-api", personaiHtml);
+assert.ok(personaiHtml.includes(`<title>${personaiTitle} | YinCheng</title>`));
+assert.ok(personaiHtml.includes(`rel="canonical" href="${personaiCanonical}"`));
+assert.ok(
+  personaiHtml.includes(`property="og:url" content="${personaiCanonical}"`),
+);
+assert.ok(
+  personaiHtml.includes(`property="og:title" content="${personaiTitle}"`),
+);
+assert.match(personaiHtml, /property="og:type" content="article"/);
+assert.match(personaiHtml, /name="twitter:card" content="summary_large_image"/);
+assert.ok(
+  personaiHtml.includes(`name="twitter:title" content="${personaiTitle}"`),
+);
+for (const attribute of ['property="og:image"', 'name="twitter:image"'])
+  assert.ok(
+    personaiHtml.includes(
+      `${attribute} content="https://yincheng.app/projects/personai-api/og"`,
+    ),
+  );
+const personaiDescription =
+  "大學畢業專題學生團隊共同開發的 AI 健身教練，結合 Next.js 網頁前端與 FastAPI 後端，提供姿勢分析、動作計數與運動紀錄。 其實當初在決定畢業專題題目的時候，我們也考慮到這幾年 AI 技術的發展趨勢。";
+for (const attribute of [
+  'name="description"',
+  'property="og:description"',
+  'name="twitter:description"',
+])
+  assert.ok(
+    personaiHtml.includes(`${attribute} content="${personaiDescription}"`),
+  );
+const personaiBody = personaiHtml.match(
+  /<article\b[^>]*>([\s\S]*?)<\/article>/,
+)![1];
+assert.equal(personaiBody.match(/<h1\b/g)?.length, 1);
+assert.equal(personaiBody.match(/<h2\b/g)?.length, 10);
+assert.equal(personaiBody.match(/<h3\b/g)?.length, 4);
+assert.ok(personaiHtml.includes('href="/projects/personai-api"'));
+for (const [repo, ids] of [
+  ["personai-web", [2, 3]],
+  ["personai-api", [2, 3, 4]],
+] as const) {
+  assert.ok(
+    personaiBody.includes(`href="https://github.com/YinCheng0106/${repo}"`),
+  );
+  for (const id of ids)
+    assert.ok(
+      personaiBody.includes(
+        `href="https://github.com/YinCheng0106/${repo}/pull/${id}"`,
+      ),
+    );
+}
+assert.doesNotMatch(
+  personaiHtml,
+  /src\/contents\/case-studies|internal path|ENOENT|EACCES/,
+);
+await assertCompleteArticle(
+  "personai-api",
+  await get(`${personaiPath}?preview=true`, 200),
+);
+
 // All six product canonicals and gated links retain their existing identity.
 for (const slug of [
   "dpip",
@@ -182,8 +246,16 @@ for (const slug of [
   ].map(([, href]) => href);
   assert.deepEqual(
     links,
-    ["dpip", "quotamew"].includes(slug) ? [`/projects/${slug}/case-study`] : [],
+    ["dpip", "personai-api", "quotamew"].includes(slug)
+      ? [`/projects/${slug}/case-study`]
+      : [],
   );
+  if (["dpip", "personai-api", "quotamew"].includes(slug)) {
+    const image = await fetch(new URL(`/projects/${slug}/og`, base));
+    assert.equal(image.status, 200, `${slug}: canonical project OG`);
+    assert.match(image.headers.get("content-type") ?? "", /^image\/png/);
+    assert.ok((await image.arrayBuffer()).byteLength > 0);
+  }
 }
 
 for (const path of [
@@ -206,18 +278,27 @@ for (const path of [
   "/projects/dpip/case-study.mdx",
   "/blog/dpip",
   "/blog/dpip/og",
-  "/projects/personai-api/case-study",
+  "/case-studies/personai-api",
+  "/case-studies/personai-api/og",
+  "/case-studies/personai-api.mdx",
+  "/contents/case-studies/personai-api.mdx",
+  "/src/contents/case-studies/personai-api.mdx",
+  "/projects/personai-api/case-study/og",
+  "/projects/personai-api/case-study.mdx",
+  "/blog/personai-api",
+  "/blog/personai-api/og",
+  "/projects/personai/case-study",
+  "/projects/yinla-bot/case-study?preview=true",
   "/projects/yinla-bot/case-study",
   "/projects/personal-website/case-study",
   "/projects/iso-countries-utils/case-study",
   "/projects/missing-project/case-study",
-  "/projects/personai-api/case-study?preview=true",
   "/projects/yinla-bot-website/case-study",
 ]) {
   const body = await get(path, 404);
   assert.doesNotMatch(
     body,
-    /其實一開始，我沒有特別打算要開發 macOS App|這個功能是我自己提出來的。/,
+    /其實一開始，我沒有特別打算要開發 macOS App|這個功能是我自己提出來的。|其實當初在決定畢業專題題目的時候/,
   );
 }
 
@@ -229,6 +310,17 @@ for (const path of [
   "/sitemap.xml",
 ]) {
   const body = await get(path, 200);
+  if (path === "/") {
+    const featured = [...body.matchAll(/href="\/projects\/([^/"?#]+)"/g)].map(
+      ([, slug]) => slug,
+    );
+    assert.deepEqual(featured.sort(), [
+      "dpip",
+      "personai-api",
+      "quotamew",
+      "yinla-bot",
+    ]);
+  }
   if (path === "/projects/quotamew") {
     assert.match(
       body,
@@ -242,7 +334,11 @@ for (const path of [
     ].map(([, url]) => url);
     assert.deepEqual(
       articleUrls.sort(),
-      [canonical, "https://yincheng.app/projects/dpip/case-study"].sort(),
+      [
+        canonical,
+        "https://yincheng.app/projects/dpip/case-study",
+        personaiCanonical,
+      ].sort(),
     );
   }
 }

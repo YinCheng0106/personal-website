@@ -34,23 +34,23 @@ the blog MDX compiler.
   compilation. It returns the original Project v2 record plus a render tree, or
   `null` on missing/empty/unreadable/malformed content. It has no preview flag,
   environment bypass or approval override. Error messages and paths are not
-  exposed. Both approved articles are verified through actual SSR rendering.
+  exposed. All three approved articles are verified through actual SSR rendering.
 
 Unlisted products keep their existing direct project-page access and noindex
 policy; their Case Studies are conservatively ineligible, as are draft/private
 products. Diagnostic APIs are internal exports, not HTTP APIs or Server Actions.
 
-## Approved articles (Phase 2-C3c-3a)
+## Approved articles (Phase 2-C3d-4a)
 
-Both `quotamew` and `dpip` are allowlisted by canonical Project v2 ID and explicitly
-`approved`. QuotaMew remains byte-identical to its merged source, the
+`quotamew`, `dpip` and `personai-api` are allowlisted by canonical Project v2 ID
+and explicitly `approved`. QuotaMew remains byte-identical to its merged source, the
 user-supplied Traditional Chinese v1.1 article, with Markdown headings, paragraph
 breaks, lists and the supplied memory table restored. There is no frontmatter,
 new media, duplicate product record or synthetic fixture content. First-person
 experience, AI assistance, experimental Claude Code limitations, Apple Developer
 Program limitations and the approximate 12 MB / 50 MB observations remain intact.
-QuotaMew was merged before this phase. DPIP is a local implementation candidate;
-this phase does not commit, push, open a PR, merge or deploy it.
+QuotaMew and DPIP are present in the verified main baseline. This phase does not
+commit, push, open a PR, merge or deploy.
 
 DPIP uses the complete user-approved Traditional Chinese v2.0 text, including
 first-person proposal and development, ExpTechTW team ownership, seven PR links,
@@ -60,9 +60,21 @@ No external media, generated imagery, diagrams or additional claims are added.
 Its opening project/technology/contribution labels are article body text, not
 frontmatter or another product record. Project-level identity stays in Project v2.
 
+PersonAI uses the user's complete approved Traditional Chinese v2.0 source.
+Only transport escapes and Markdown line-break syntax are normalized; no prose,
+section, attribution, public reference or qualification is rewritten. Its title
+and opening labels remain body content, with no frontmatter or new media. The
+canonical combined web/API product remains `personai-api`; there is no duplicate
+project, alternative article route, redirect or Project v2 data/schema change.
+Personal PM/leader/developer responsibilities are preserved alongside explicit
+team attribution, the distinction between pose detection and counting logic,
+the personal squat false-positive discovery, limited retest and need for more
+validation. No medical, retention, accuracy or production-readiness claim is added.
+
 `/projects/[slug]/case-study` resolves the canonical product using Project v2,
-then looks up repository-local content by its stable ID. Only DPIP and QuotaMew
-currently return articles. Missing, unreadable, empty or invalid content returns 404;
+then looks up repository-local content by its stable ID. Only DPIP, PersonAI and
+QuotaMew currently return articles. Missing, unreadable, empty or invalid content
+returns 404;
 other IDs and project visibility states are ineligible. No preview bypass exists.
 The page uses the Node runtime with `force-dynamic`, so its local MDX is read and
 compiled on the server at request time. Current article Markdown is compiled and
@@ -87,10 +99,10 @@ GitHub README rendering and project attribution are unchanged.
 
 ## Runtime packaging
 
-`next.config.mjs` explicitly traces the two literal DPIP and QuotaMew MDX paths
-for project pages, Case Study pages and sitemap. The build artifact checker
-verifies all three `.nft.json` entries, exact two-article inclusion and byte
-equality of both standalone MDX copies.
+`next.config.mjs` explicitly traces the three literal DPIP, PersonAI and QuotaMew
+MDX paths for project pages, Case Study pages and sitemap. The build artifact
+checker verifies all three `.nft.json` entries, exact three-article inclusion and
+byte equality of all three standalone MDX copies.
 The source is server-only and is never served as a raw public asset. See
 [Next.js output tracing](https://nextjs.org/docs/app/api-reference/config/next-config-js/output).
 For standalone verification, copy `public` and `.next/static` into the generated
@@ -312,3 +324,49 @@ no production deployment is authorized in this phase.
   documented `NoFallbackError`; blog code is unchanged. No deployment was tested.
 - Verdict: **READY FOR PR PREPARATION**. No commit, push, PR, merge, deployment or
   deployment-setting change was performed.
+
+## Phase 2-C3d-4a local implementation — 2026-10-24
+
+- Base: fetched `origin/main` and verified `git ls-remote` at
+  `265a66abcb8d2badf680971f30bd7c99560b67cb`, with both existing articles.
+  New managed worktree: `personai-case-study/personal-website`; branch:
+  `feat/personai-case-study`. All seven changed files remain uncommitted/unstaged.
+- PersonAI v2.0 matches the complete user-supplied article after removing transport
+  escapes, expressing two Markdown hard breaks with backslashes, and normalizing
+  the final newline. All paragraphs, ten H2s, four H3s, team attribution, PM role,
+  personal false-positive discovery, limited retest and qualifications remain.
+  There is no frontmatter, new media, duplicate product or schema/data change.
+- Validation: 59 tests, 678 assertions, zero failures. TypeScript, production
+  build, artifact checker and diff checks pass. Lint has zero errors and the same
+  three warnings in unchanged files. Frozen install leaves dependencies unchanged.
+- Artifact checks cover 160 client files and 176 public documents. All three
+  literal sources appear in all three relevant traces; standalone includes exactly
+  the approved articles, byte-identical to source. Client bundles exclude article
+  source, internal paths and fixture markers. Raw article URL guesses return 404.
+- Case Study and YINLA HTTP suites pass on standard production (3241) and a
+  standalone package relocated outside the checkout (3242). All three complete
+  articles return 200; the other three products' articles return 404. Six canonical
+  project pages, four featured projects, gated entry/return links, canonical/OG/
+  Twitter tags, exactly three sitemap article URLs and YINLA 308s are verified.
+- Injected GitHub 503 positive controls fire on both servers. Article requests
+  render fully with no additional GitHub fetches. Separately, all 17 unique public
+  GitHub references across the articles respond to live HEAD requests with 200.
+  Existing external README inert-expression/HTML/URL tests pass unchanged.
+- Missing/malformed controls modify only the relocated package. Each of the three
+  articles independently returns 404 and loses its entry link while the other two
+  articles/links work. Package bytes are restored and all three rechecked at 200.
+- Browser QA covers all three articles at 1280/375/320px in light/dark mode (18
+  cases): one article H1, valid heading hierarchy, 16px/32px paragraph typography,
+  no page overflow, no article media and no captured browser errors. Keyboard
+  entry/return navigation works; both tables are focusable and arrow-key scrollable
+  at 320px. Final screenshots are external evidence, absent from article sources.
+- DPIP/QuotaMew bodies, Project v2 data/schema, shared routes/typography, sitemap
+  code, README trust-boundary files, package and lockfile match base bytes. Original
+  checkout HEAD/branch/status, raw index, index entries and all 20 changed/untracked
+  file hashes match preflight. Photos files are untouched.
+- Limits: local browser/HTTP and injected outage evidence only; no physical phone,
+  Safari, Firefox, screen reader or deployed runtime verification. Sitemap remains
+  a build-time artifact. `next start` prints the existing standalone-output warning;
+  the supported relocated `server.js` entry point is verified separately.
+- Verdict: **READY FOR PR PREPARATION**. No stage, commit, push, PR, merge,
+  deployment or deployment-setting change was performed.

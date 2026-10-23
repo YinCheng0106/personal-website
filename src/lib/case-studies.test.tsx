@@ -25,7 +25,8 @@ const { generateMetadata } = await import("@/app/(main)/projects/[slug]/page");
 
 const pilot = projectV2s.find(({ id }) => id === "quotamew")!;
 const dpip = projectV2s.find(({ id }) => id === "dpip")!;
-const approved = [dpip, pilot];
+const personai = projectV2s.find(({ id }) => id === "personai-api")!;
+const approved = [dpip, personai, pilot];
 const marker = "CASE_STUDY_QUOTAMEW_INTERNAL_FIXTURE";
 
 describe("trusted Case Study infrastructure", () => {
@@ -37,7 +38,7 @@ describe("trusted Case Study infrastructure", () => {
     });
     // PersonAI's product title differs from its stable ID; neither is inferred.
     expect(await validateCaseStudyContent("PersonAI")).toBe("missing");
-    expect(await validateCaseStudyContent("personai-api")).toBe("missing");
+    expect(await validateCaseStudyContent("personai-api")).toBe("valid");
   });
 
   test("renders the approved first-person article with qualified memory observations", async () => {
@@ -152,10 +153,90 @@ describe("trusted Case Study infrastructure", () => {
     });
   });
 
-  test("each missing or invalid article fails closed without disabling the other", async () => {
+  test("renders approved PersonAI team story, personal retest, metadata and references", async () => {
+    expect(personai.id).toBe("personai-api");
+    expect(personai.slug).toBe("personai-api");
+    expect(personai.title).toBe("PersonAI");
+    expect(await validateCaseStudyContent(personai.id)).toBe("valid");
+    const article = (await getPublicCaseStudyBySlug(personai.slug))!;
+    expect(article.project).toBe(personai);
+    const html = renderToStaticMarkup(article.content);
+    expect(html.match(/<h1\b/g)).toHaveLength(1);
+    expect(html.match(/<h2\b/g)).toHaveLength(10);
+    expect(html.match(/<h3\b/g)).toHaveLength(4);
+    for (const text of [
+      "PersonAI（大學畢業專題團隊作品）",
+      "我主要擔任 PM 和組長",
+      "PersonAI 仍然是團隊共同參與的畢業專題",
+      "MediaPipe 負責的是人體姿態偵測，並不是直接幫我們判斷完成了幾次深蹲。",
+      "33 個人體關鍵點",
+      "frame_id",
+      "One-Euro Filter",
+      "FSM",
+      "即使只是坐在椅子上活動膝蓋",
+      "站姿基準、髖部下降幅度",
+      "當時沒有再重現原本的誤計問題",
+      "目前還不能說這個問題已經完全解決",
+      "不能直接把未知數值當成零",
+      "並不代表已經透過研究證明它能提高運動持續率",
+      "不能直接把它當成真人運動時的計次準確率",
+      "更不能當成醫療或運動安全保證",
+    ])
+      expect(html).toContain(text);
+    for (const [repo, ids] of [
+      ["personai-web", [2, 3]],
+      ["personai-api", [2, 3, 4]],
+    ] as const) {
+      expect(html).toContain(`href="https://github.com/YinCheng0106/${repo}"`);
+      for (const id of ids)
+        expect(html).toContain(
+          `href="https://github.com/YinCheng0106/${repo}/pull/${id}"`,
+        );
+    }
+    expect(html).not.toMatch(
+      /<img|<video|<iframe|<svg|CASE_STUDY_|synthetic fixture/,
+    );
+    const source = await fs.readFile(
+      "src/contents/case-studies/personai-api.mdx",
+      "utf8",
+    );
+    expect(source).not.toMatch(/^---|!\[|\/Users\/|\/home\//);
+    const metadata = await articleMetadata({
+      params: Promise.resolve({ slug: personai.slug }),
+    });
+    expect(metadata.title).toBe(
+      "PersonAI｜從人體關鍵點到運動計次，開發 AI 智能健身教練",
+    );
+    expect(metadata.description).toBe(
+      `${personai.summary} 其實當初在決定畢業專題題目的時候，我們也考慮到這幾年 AI 技術的發展趨勢。`,
+    );
+    expect(metadata.alternates?.canonical).toBe(
+      "https://yincheng.app/projects/personai-api/case-study",
+    );
+    expect(metadata.openGraph).toMatchObject({
+      type: "article",
+      title: article.title,
+      description: article.description,
+      url: `https://yincheng.app${article.href}`,
+    });
+    expect(metadata.twitter).toMatchObject({
+      title: article.title,
+      description: article.description,
+      images: ["https://yincheng.app/projects/personai-api/og"],
+    });
+    expect(
+      renderToStaticMarkup(
+        await CaseStudyPage({
+          params: Promise.resolve({ slug: personai.slug }),
+        }),
+      ),
+    ).toContain('href="/projects/personai-api"');
+  });
+
+  test("each missing or invalid article fails closed without disabling the other two", async () => {
     const originalRead = fs.readFile;
     for (const project of approved) {
-      const other = approved.find((item) => item !== project)!;
+      const others = approved.filter((item) => item !== project);
       for (const replacement of [
         null,
         "  \n",
@@ -178,16 +259,19 @@ describe("trusted Case Study infrastructure", () => {
         }) as typeof fs.readFile);
         try {
           expect(await getPublicCaseStudy(project.id)).toBeNull();
-          expect((await getPublicCaseStudy(other.id))?.project).toBe(other);
+          for (const other of others)
+            expect((await getPublicCaseStudy(other.id))?.project).toBe(other);
           expect(
             (await getPublicCaseStudies()).map(({ project }) => project.id),
-          ).toEqual([other.id]);
+          ).toEqual(others.map(({ id }) => id));
           const urls = (await sitemap())
             .filter(({ url }) => url.endsWith("/case-study"))
             .map(({ url }) => url);
-          expect(urls).toEqual([
-            `https://yincheng.app/projects/${other.slug}/case-study`,
-          ]);
+          expect(urls).toEqual(
+            others.map(
+              ({ slug }) => `https://yincheng.app/projects/${slug}/case-study`,
+            ),
+          );
           await expect(
             CaseStudyPage({ params: Promise.resolve({ slug: project.slug }) }),
           ).rejects.toThrow("NEXT_HTTP_ERROR_FALLBACK;404");
@@ -222,6 +306,10 @@ describe("trusted Case Study infrastructure", () => {
       for (const id of [
         "../quotamew",
         "../dpip",
+        "../personai-api",
+        "personai-api.mdx",
+        "personai",
+        "personai-api?preview=true",
         "dpip.mdx",
         "DPIP",
         "dpip?preview=true",
@@ -406,24 +494,38 @@ describe("trusted Case Study infrastructure", () => {
           })
         ).openGraph,
       ).toMatchObject({ type: "article" });
+      const personaiPage = await CaseStudyPage({
+        params: Promise.resolve({ slug: personai.slug }),
+      });
+      expect(renderToStaticMarkup(personaiPage)).toContain(
+        "當時沒有再重現原本的誤計問題",
+      );
+      expect(
+        (
+          await articleMetadata({
+            params: Promise.resolve({ slug: personai.slug }),
+          })
+        ).openGraph,
+      ).toMatchObject({ type: "article" });
       expect(fetch).not.toHaveBeenCalled();
     } finally {
       fetch.mockRestore();
     }
   });
 
-  test("publishes only DPIP and QuotaMew and preserves project metadata", async () => {
+  test("publishes only DPIP, PersonAI and QuotaMew and preserves project metadata", async () => {
     const urls = (await sitemap()).map(({ url }) => url);
     expect(urls.filter((url) => /\/projects\/[^/]+$/.test(url))).toHaveLength(
       6,
     );
     expect(urls.filter((url) => url.includes("/case-study"))).toEqual([
       "https://yincheng.app/projects/dpip/case-study",
+      "https://yincheng.app/projects/personai-api/case-study",
       "https://yincheng.app/projects/quotamew/case-study",
     ]);
     expect(
       (await getPublicCaseStudies()).map(({ project }) => project.id),
-    ).toEqual(["dpip", "quotamew"]);
+    ).toEqual(["dpip", "personai-api", "quotamew"]);
     for (const project of projectV2s) {
       if (!approved.includes(project)) {
         expect(await getPublicCaseStudy(project.id)).toBeNull();

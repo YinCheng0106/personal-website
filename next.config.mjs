@@ -35,14 +35,17 @@ const nextConfig = {
     "/projects/*": [
       "./src/contents/case-studies/quotamew.mdx",
       "./src/contents/case-studies/dpip.mdx",
+      "./src/contents/case-studies/personai-api.mdx",
     ],
     "/projects/*/case-study": [
       "./src/contents/case-studies/quotamew.mdx",
       "./src/contents/case-studies/dpip.mdx",
+      "./src/contents/case-studies/personai-api.mdx",
     ],
     "/sitemap.xml": [
       "./src/contents/case-studies/quotamew.mdx",
       "./src/contents/case-studies/dpip.mdx",
+      "./src/contents/case-studies/personai-api.mdx",
     ],
   },
   serverExternalPackages: ["@takumi-rs/core"], 
