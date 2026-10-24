@@ -50,6 +50,7 @@ const contentPaths = [
   "src/contents/case-studies/quotamew.mdx",
   "src/contents/case-studies/dpip.mdx",
   "src/contents/case-studies/personai-api.mdx",
+  "src/contents/case-studies/yinla-bot.mdx",
 ];
 for (const contentPath of contentPaths) {
   for (const tracePath of [
@@ -84,12 +85,12 @@ for (const contentPath of contentPaths) {
 assert.deepEqual(
   (await filesUnder(".next/standalone/src/contents/case-studies")).sort(),
   contentPaths.map((path) => `.next/standalone/${path}`).sort(),
-  "standalone must contain exactly the three allowlisted articles",
+  "standalone must contain exactly the four allowlisted articles",
 );
 for (const file of clientFiles) {
   assert.doesNotMatch(
     await readFile(file, "utf8"),
-    /其實一開始，我沒有特別打算要開發 macOS App|這個功能是我自己提出來的。|其實當初在決定畢業專題題目的時候|坐在椅子上，竟然也被判斷成深蹲|src\/contents\/case-studies/,
+    /其實一開始，我沒有特別打算要開發 macOS App|這個功能是我自己提出來的。|其實當初在決定畢業專題題目的時候|坐在椅子上，竟然也被判斷成深蹲|如果要說 YINLA 是怎麼誕生的|沒有其他固定的程式協作者|src\/contents\/case-studies/,
   );
 }
 
