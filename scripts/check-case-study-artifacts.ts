@@ -49,6 +49,7 @@ assert.equal(
 const contentPaths = [
   "src/contents/case-studies/quotamew.mdx",
   "src/contents/case-studies/dpip.mdx",
+  "src/contents/case-studies/personai-api.mdx",
 ];
 for (const contentPath of contentPaths) {
   for (const tracePath of [
@@ -75,20 +76,20 @@ for (const contentPath of contentPaths) {
       contentPaths.map((path) => resolve(path)).sort(),
     );
   }
-  assert.equal(
-    await readFile(`.next/standalone/${contentPath}`, "utf8"),
-    await readFile(contentPath, "utf8"),
+  assert.deepEqual(
+    await readFile(`.next/standalone/${contentPath}`),
+    await readFile(contentPath),
   );
 }
 assert.deepEqual(
   (await filesUnder(".next/standalone/src/contents/case-studies")).sort(),
   contentPaths.map((path) => `.next/standalone/${path}`).sort(),
-  "standalone must contain exactly the two allowlisted articles",
+  "standalone must contain exactly the three allowlisted articles",
 );
 for (const file of clientFiles) {
   assert.doesNotMatch(
     await readFile(file, "utf8"),
-    /其實一開始，我沒有特別打算要開發 macOS App|這個功能是我自己提出來的。|src\/contents\/case-studies/,
+    /其實一開始，我沒有特別打算要開發 macOS App|這個功能是我自己提出來的。|其實當初在決定畢業專題題目的時候|坐在椅子上，竟然也被判斷成深蹲|src\/contents\/case-studies/,
   );
 }
 

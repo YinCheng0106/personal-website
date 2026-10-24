@@ -32,6 +32,14 @@ const registry: Readonly<Record<string, Entry>> = {
         "utf8",
       ),
   },
+  "personai-api": {
+    approval: "approved",
+    read: () =>
+      readFile(
+        join(process.cwd(), "src/contents/case-studies/personai-api.mdx"),
+        "utf8",
+      ),
+  },
   quotamew: {
     approval: "approved",
     read: () =>
