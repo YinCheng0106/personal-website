@@ -48,6 +48,14 @@ const registry: Readonly<Record<string, Entry>> = {
         "utf8",
       ),
   },
+  "yinla-bot": {
+    approval: "approved",
+    read: () =>
+      readFile(
+        join(process.cwd(), "src/contents/case-studies/yinla-bot.mdx"),
+        "utf8",
+      ),
+  },
 };
 
 function lookup(projectId: unknown) {

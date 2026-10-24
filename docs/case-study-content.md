@@ -34,15 +34,15 @@ the blog MDX compiler.
   compilation. It returns the original Project v2 record plus a render tree, or
   `null` on missing/empty/unreadable/malformed content. It has no preview flag,
   environment bypass or approval override. Error messages and paths are not
-  exposed. All three approved articles are verified through actual SSR rendering.
+  exposed. All four approved articles are verified through actual SSR rendering.
 
 Unlisted products keep their existing direct project-page access and noindex
 policy; their Case Studies are conservatively ineligible, as are draft/private
 products. Diagnostic APIs are internal exports, not HTTP APIs or Server Actions.
 
-## Approved articles (Phase 2-C3d-4a)
+## Approved articles (Phase 2-C3e-4a)
 
-`quotamew`, `dpip` and `personai-api` are allowlisted by canonical Project v2 ID
+`dpip`, `personai-api`, `quotamew` and `yinla-bot` are allowlisted by canonical Project v2 ID
 and explicitly `approved`. QuotaMew remains byte-identical to its merged source, the
 user-supplied Traditional Chinese v1.1 article, with Markdown headings, paragraph
 breaks, lists and the supplied memory table restored. There is no frontmatter,
@@ -71,9 +71,29 @@ team attribution, the distinction between pose detection and counting logic,
 the personal squat false-positive discovery, limited retest and need for more
 validation. No medical, retention, accuracy or production-readiness claim is added.
 
+YINLA uses the complete user-approved Traditional Chinese v2.0 source, with
+transport escapes removed and the two Markdown hard breaks normalized. The
+normalized article SHA-256 is
+`150c051675ce3fc2504051d87190163a0b03be49764bf0686d8a669b0c840382`.
+Its ten H2s, six H3s, first-person learning history, approximate recollected dates,
+Python-to-JavaScript rewrite, CPC date-field debugging, qualified CPBL migration
+motivation and all six unique public GitHub references remain verbatim. There
+is no new media, quantitative latency claim, exactly-once delivery claim or claim
+that a public repository proves current uptime. It describes continuing maintenance.
+YINLA is individually developed; YINLA-TEAM is the author's own management
+Organization, with no other regular code collaborators. The existing Project v2
+`attribution.kind: "team"` remains baseline metadata and is not rendered as a
+multi-developer team by the project page. This phase does not alter that record;
+the article explicitly clarifies individual ownership. Product ID, slug, ordering,
+repositories, logo and all legacy redirects remain unchanged.
+
+The public article allowlist is exactly `dpip`, `personai-api`, `quotamew`,
+`yinla-bot`. Published projects `personal-website` and `iso-countries-utils` have
+no registry entry and cannot obtain article approval through request input.
+
 `/projects/[slug]/case-study` resolves the canonical product using Project v2,
-then looks up repository-local content by its stable ID. Only DPIP, PersonAI and
-QuotaMew currently return articles. Missing, unreadable, empty or invalid content
+then looks up repository-local content by its stable ID. Only DPIP, PersonAI, QuotaMew and
+YINLA currently return articles. Missing, unreadable, empty or invalid content
 returns 404;
 other IDs and project visibility states are ineligible. No preview bypass exists.
 The page uses the Node runtime with `force-dynamic`, so its local MDX is read and
@@ -99,10 +119,10 @@ GitHub README rendering and project attribution are unchanged.
 
 ## Runtime packaging
 
-`next.config.mjs` explicitly traces the three literal DPIP, PersonAI and QuotaMew
+`next.config.mjs` explicitly traces the four literal DPIP, PersonAI, QuotaMew and YINLA
 MDX paths for project pages, Case Study pages and sitemap. The build artifact
-checker verifies all three `.nft.json` entries, exact three-article inclusion and
-byte equality of all three standalone MDX copies.
+checker verifies all three `.nft.json` entries, exact four-article inclusion and
+byte equality of all four standalone MDX copies.
 The source is server-only and is never served as a raw public asset. See
 [Next.js output tracing](https://nextjs.org/docs/app/api-reference/config/next-config-js/output).
 For standalone verification, copy `public` and `.next/static` into the generated
@@ -370,3 +390,112 @@ no production deployment is authorized in this phase.
   the supported relocated `server.js` entry point is verified separately.
 - Verdict: **READY FOR PR PREPARATION**. No stage, commit, push, PR, merge,
   deployment or deployment-setting change was performed.
+
+## Phase 2-C3e-4a local implementation — 2026-10-25
+
+- Verified latest `origin/main` against `git ls-remote` as
+  `0ccb3998c692ed2486a788fd0247c7328af0f75e`. GitHub confirms PersonAI PR #9
+  merged on 2026-10-24; all three prior approved articles are in this baseline.
+  New managed worktree: `yinla-case-study/personal-website`; branch:
+  `feat/yinla-case-study`. Exactly seven content/registry/test/tracing/documentation
+  files changed, all unstaged and uncommitted. No dependency or lockfile changes.
+- YINLA v2.0 matches the actual user message byte-for-byte after transport-escape,
+  two Markdown hard-break and terminal-newline normalization. The article is
+  14,719 UTF-8 bytes, with one H1, ten H2s and six H3s. All six unique GitHub
+  references respond to live HEAD requests with HTTP 200. No media is added.
+- Unit tests: 60 passed, 799 assertions, zero failures. Lint: zero errors, the
+  three existing warnings in `not-found.tsx`, `mdx-components.tsx` and
+  `circularText.tsx`. TypeScript, production build and diff whitespace check pass.
+  Initial test expectations were corrected to retain existing Project v2 order;
+  product data and featured ordering were not changed.
+- Artifact checks: 160 client files and 176 public documents scanned. Exactly
+  four allowlisted sources appear in each relevant trace and in standalone,
+  byte-identical to source. No article text sentinel, internal source path,
+  private fixture marker or selected sensitive pattern was found in public/client
+  output. No unapproved Case Study MDX is packaged. This remains a bounded scan,
+  not an exhaustive secret or runtime vulnerability assessment.
+- Both established HTTP suites pass on standard Next production (3251) and a
+  standalone package relocated outside the checkout (3252). Four complete articles
+  render 200, the other two remain 404, each approved product has exactly one
+  article entry, and each article has a canonical return link. Canonical/OG/
+  Twitter metadata, six product pages, four unchanged featured projects, exactly
+  four article sitemap entries, YINLA legacy 308s and raw-source exclusions pass.
+- Injected GitHub 503 controls are active on both production servers. Fresh
+  positive controls reach the GitHub boundary; four complete articles render with
+  zero additional GitHub fetches. Standard-server generated fetch cache was moved
+  outside the checkout and servers restarted to prevent a cached positive-control
+  response from being mistaken for a fresh boundary probe. README renderer and
+  URL-safety regression tests pass unchanged; no remote content reaches MDX.
+- Each relocated article independently missing, empty and malformed: 12 real HTTP
+  fault cases pass. The affected article returns 404 even with approval/preview
+  query parameters and loses its project entry; the other three complete articles
+  and links remain available. All package bytes were restored. Sitemap remains a
+  build-time artifact and is not expected to change during runtime fault injection.
+- Chromium 151.0.7922.34: all 24 layout cases (four articles × 1280/375/320px ×
+  light/dark) pass. One H1 per article, valid heading hierarchy, readable paragraph
+  typography, public GitHub anchors, no article media or page overflow. Both
+  existing tables are named/focusable and arrow-key scrollable at 320px in both
+  themes. Keyboard Tab/Enter entry and return navigation pass for all four.
+  Full-page screenshots and raw browser results are stored outside the repository.
+- **Browser console acceptance FAILS:** all 24 cases capture two local HTTP 404s,
+  `/_vercel/insights/script.js` and `/_vercel/speed-insights/script.js` (48 total).
+  There are no captured JavaScript `pageerror` events. Both integrations are in
+  the unchanged root layout; the local Node servers do not supply these Vercel
+  platform scripts. No request filtering, stubbing, source change or Vercel setting
+  change hides these failures. The zero-console-error requirement is not met.
+- DPIP, PersonAI and QuotaMew bodies, Project v2 data/schema, shared routes/styles,
+  root layout, sitemap code, README trust-boundary files, package and lockfile
+  match baseline bytes. The baseline YINLA `attribution.kind: "team"` is retained
+  and reported explicitly; no multi-developer team claim is added to the article.
+- Original checkout: HEAD `c65a4147a9b601f97a623fd71ceffb13efa52079`, branch `main`,
+  full status, raw index, index entries and all 20 changed/untracked file hashes
+  match the preflight snapshot. Photos work is preserved.
+- Other limits: no Safari, Firefox, VoiceOver, physical-device or deployed-runtime
+  acceptance. `next start` emits its existing standalone-output warning; relocated
+  `server.js` is tested independently. Unknown blog routes retain the baseline
+  `NoFallbackError` logging while returning expected 404s; blog code is untouched.
+- Verdict: **NOT READY** against the complete requested acceptance criteria because
+  the unfiltered local browser console check fails. Implementation is preserved
+  for review. No stage, commit, push, PR, merge, deployment or Vercel setting
+  change was performed.
+
+## Phase 2-C3e-4b final local acceptance — 2026-10-25
+
+- `git fetch origin main` confirms the base remains
+  `0ccb3998c692ed2486a788fd0247c7328af0f75e`. The approved YINLA source remains
+  byte-identical to the normalized v2.0 article above; the existing three article
+  bodies and Project v2 attribution metadata remain unchanged.
+- Fresh checks pass: 60 tests / 799 assertions, TypeScript, production build,
+  `git diff --check`, artifact checker (160 client files / 176 public documents),
+  complete Case Study HTTP suite and YINLA legacy-route suite. Exactly four
+  approved articles render; the other two published projects remain ineligible.
+  Earlier standalone and fault-isolation evidence is retained separately.
+- All six historical RSC cancellations without `next-router-prefetch` occurred in
+  the keyboard flow, with Next.js/Link click-navigation initiators, HTTP 200 and
+  `text/x-component`. Historical URL events, keyboard assertions and subsequent
+  navigation/context closure support completed destinations; those logs do not
+  independently timestamp each DOM completion or every close event.
+- A bounded new Chromium run adds explicit navigation-start, frame URL, rendered
+  destination content and page-close events. Normal, rapid and keyboard journeys
+  pass 46 rendered-destination checks on the candidate, and 35 on unchanged main.
+  Project entry, full article, return link and switching products all succeed.
+  Candidate/baseline retain 65/59 canceled Fetch events, including 20/19 without
+  the prefetch header. No navigation remains pending; no user-facing route fails.
+  HTTP 200 alone is not used as proof of navigation completion, and no universal
+  `ERR_ABORTED` exemption or prefetch configuration change is introduced.
+- Local telemetry 404s are real: Analytics and Speed Insights use platform paths
+  absent from local `next start`. The unchanged baseline reproduces both with
+  the same layout, SDK versions and initiating client chunk. The new journey run
+  records 12 candidate and 10 baseline console errors at those exact script URLs;
+  unexpected application console errors and JavaScript pageerrors are zero.
+  Historical 66/46 RSC cancellations and all prior conditional diagnostic results
+  remain intact; they are separate from the telemetry root-cause conclusion.
+- Local stage: **READY FOR PR PREPARATION WITH DOCUMENTED LOCAL PLATFORM
+  LIMITATION** under outcome-based navigation acceptance. This is not READY FOR
+  MERGE and does not retroactively turn the earlier strict network run green.
+  Real, SHA-matched Vercel Preview content, telemetry, 24-case layout matrix,
+  keyboard and network acceptance remain required. The localhost exception does
+  not apply to Preview. No merge or Production deployment is authorized.
+- Evidence and unfiltered raw logs are outside the repository at
+  `/Users/yincheng/.codex/backups/yinla-final-acceptance-20261025`; historical logs
+  remain under `/Users/yincheng/.codex/backups/yinla-case-study-20261025`.

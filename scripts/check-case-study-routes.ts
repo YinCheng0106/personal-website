@@ -226,6 +226,67 @@ await assertCompleteArticle(
   await get(`${personaiPath}?preview=true`, 200),
 );
 
+const yinlaPath = "/projects/yinla-bot/case-study";
+const yinlaCanonical = `https://yincheng.app${yinlaPath}`;
+const yinlaTitle = "YINLA｜從 Replit 的 main.py，到整合臺灣資訊的 Discord Bot";
+const yinlaHtml = await get(yinlaPath, 200);
+await assertCompleteArticle("yinla-bot", yinlaHtml);
+assert.ok(yinlaHtml.includes(`<title>${yinlaTitle} | YinCheng</title>`));
+assert.ok(yinlaHtml.includes(`rel="canonical" href="${yinlaCanonical}"`));
+assert.ok(yinlaHtml.includes(`property="og:url" content="${yinlaCanonical}"`));
+assert.ok(yinlaHtml.includes(`property="og:title" content="${yinlaTitle}"`));
+assert.match(yinlaHtml, /property="og:type" content="article"/);
+assert.match(yinlaHtml, /name="twitter:card" content="summary_large_image"/);
+assert.ok(yinlaHtml.includes(`name="twitter:title" content="${yinlaTitle}"`));
+for (const attribute of ['property="og:image"', 'name="twitter:image"'])
+  assert.ok(
+    yinlaHtml.includes(
+      `${attribute} content="https://yincheng.app/projects/yinla-bot/og"`,
+    ),
+  );
+const yinlaDescription =
+  "YINLA-TEAM 的 Discord 資訊服務，透過 Bot 提供臺灣天氣、地震、交通與棒球資訊，並有獨立產品網站；公開 README 記載 YinCheng 為 Bot 建立與維護者。 如果要說 YINLA 是怎麼誕生的，其實一開始真的沒有想那麼多。";
+for (const attribute of [
+  'name="description"',
+  'property="og:description"',
+  'name="twitter:description"',
+])
+  assert.ok(yinlaHtml.includes(`${attribute} content="${yinlaDescription}"`));
+const yinlaBody = yinlaHtml.match(/<article\b[^>]*>([\s\S]*?)<\/article>/)![1];
+assert.equal(yinlaBody.match(/<h1\b/g)?.length, 1);
+assert.equal(yinlaBody.match(/<h2\b/g)?.length, 10);
+assert.equal(yinlaBody.match(/<h3\b/g)?.length, 6);
+for (const href of [
+  "https://github.com/YINLA-TEAM/YINLA",
+  "https://github.com/YINLA-TEAM/yinla-bot-website",
+  ...[3, 4, 5, 6].map((id) => `https://github.com/YINLA-TEAM/YINLA/pull/${id}`),
+])
+  assert.ok(yinlaBody.includes(`href="${href}"`), href);
+assert.doesNotMatch(
+  yinlaHtml,
+  /src\/contents\/case-studies|internal path|ENOENT|EACCES/,
+);
+await assertCompleteArticle(
+  "yinla-bot",
+  await get(
+    `${yinlaPath}?preview=true&approval=approved&publicationStatus=published&source=../../.env`,
+    200,
+  ),
+);
+
+// Every approved page has exactly one canonical return link.
+for (const [slug, body] of [
+  ["quotamew", html],
+  ["dpip", dpipHtml],
+  ["personai-api", personaiHtml],
+  ["yinla-bot", yinlaHtml],
+])
+  assert.equal(
+    body.split(`href="/projects/${slug}"`).length - 1,
+    1,
+    `${slug}: return link`,
+  );
+
 // All six product canonicals and gated links retain their existing identity.
 for (const slug of [
   "dpip",
@@ -246,11 +307,11 @@ for (const slug of [
   ].map(([, href]) => href);
   assert.deepEqual(
     links,
-    ["dpip", "personai-api", "quotamew"].includes(slug)
+    ["dpip", "personai-api", "quotamew", "yinla-bot"].includes(slug)
       ? [`/projects/${slug}/case-study`]
       : [],
   );
-  if (["dpip", "personai-api", "quotamew"].includes(slug)) {
+  if (["dpip", "personai-api", "quotamew", "yinla-bot"].includes(slug)) {
     const image = await fetch(new URL(`/projects/${slug}/og`, base));
     assert.equal(image.status, 200, `${slug}: canonical project OG`);
     assert.match(image.headers.get("content-type") ?? "", /^image\/png/);
@@ -288,8 +349,21 @@ for (const path of [
   "/blog/personai-api",
   "/blog/personai-api/og",
   "/projects/personai/case-study",
-  "/projects/yinla-bot/case-study?preview=true",
-  "/projects/yinla-bot/case-study",
+  "/case-studies/yinla-bot",
+  "/case-studies/yinla-bot/og",
+  "/case-studies/yinla-bot.mdx",
+  "/contents/case-studies/yinla-bot.mdx",
+  "/src/contents/case-studies/yinla-bot.mdx",
+  "/projects/yinla-bot/case-study/og",
+  "/projects/yinla-bot/case-study.mdx",
+  "/blog/yinla-bot",
+  "/blog/yinla-bot/og",
+  "/projects/personal-website/case-study?preview=true&approval=approved&publicationStatus=published&source=yinla-bot",
+  "/projects/iso-countries-utils/case-study?preview=true&approval=approved",
+  "/projects/__proto__/case-study",
+  "/projects/constructor/case-study",
+  "/projects/toString/case-study",
+  "/projects/%2e%2e%2fyinla-bot/case-study",
   "/projects/personal-website/case-study",
   "/projects/iso-countries-utils/case-study",
   "/projects/missing-project/case-study",
@@ -298,7 +372,7 @@ for (const path of [
   const body = await get(path, 404);
   assert.doesNotMatch(
     body,
-    /其實一開始，我沒有特別打算要開發 macOS App|這個功能是我自己提出來的。|其實當初在決定畢業專題題目的時候/,
+    /其實一開始，我沒有特別打算要開發 macOS App|這個功能是我自己提出來的。|其實當初在決定畢業專題題目的時候|如果要說 YINLA 是怎麼誕生的/,
   );
 }
 
@@ -338,6 +412,7 @@ for (const path of [
         canonical,
         "https://yincheng.app/projects/dpip/case-study",
         personaiCanonical,
+        yinlaCanonical,
       ].sort(),
     );
   }

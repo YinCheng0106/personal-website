@@ -26,7 +26,8 @@ const { generateMetadata } = await import("@/app/(main)/projects/[slug]/page");
 const pilot = projectV2s.find(({ id }) => id === "quotamew")!;
 const dpip = projectV2s.find(({ id }) => id === "dpip")!;
 const personai = projectV2s.find(({ id }) => id === "personai-api")!;
-const approved = [dpip, personai, pilot];
+const yinla = projectV2s.find(({ id }) => id === "yinla-bot")!;
+const approved = [dpip, yinla, personai, pilot];
 const marker = "CASE_STUDY_QUOTAMEW_INTERNAL_FIXTURE";
 
 describe("trusted Case Study infrastructure", () => {
@@ -233,7 +234,96 @@ describe("trusted Case Study infrastructure", () => {
     ).toContain('href="/projects/personai-api"');
   });
 
-  test("each missing or invalid article fails closed without disabling the other two", async () => {
+  test("renders approved YINLA individual ownership, learning history and qualified maintenance", async () => {
+    expect(yinla.id).toBe("yinla-bot");
+    expect(yinla.slug).toBe("yinla-bot");
+    expect(yinla.title).toBe("YINLA");
+    expect(await validateCaseStudyContent(yinla.id)).toBe("valid");
+    const article = (await getPublicCaseStudyBySlug(yinla.slug))!;
+    expect(article.project).toBe(yinla);
+    const html = renderToStaticMarkup(article.content);
+    expect(html.match(/<h1\b/g)).toHaveLength(1);
+    expect(html.match(/<h2\b/g)).toHaveLength(10);
+    expect(html.match(/<h3\b/g)).toHaveLength(6);
+    for (const text of [
+      "YINLA（個人開發的開源 Discord Bot）",
+      "我大概是在 2018 年開始接觸 Discord。",
+      "大約在 2019 年",
+      "Replit",
+      "main.py",
+      "discord.py",
+      "幾乎把整隻機器人重新開發了一次",
+      "commands",
+      "events",
+      "handlers",
+      "沒有把讀取與寫入的對應方式整理一致",
+      "我自己也發現過一些比較特別的問題",
+      "依照我當時的觀察，賽事資料的更新也比較即時",
+      "stats.cpbl.com.tw",
+      "不能直接視為任何情境下都不會漏送或重送的保證",
+      "這個組織也是我自己創立的",
+      "目前沒有其他固定的程式協作者",
+      "目前主要就是維持既有功能",
+      "自動化測試也還不完整",
+      "並沒有特別把增加使用量當成主要目標",
+    ])
+      expect(html).toContain(text);
+    for (const href of [
+      "https://github.com/YINLA-TEAM/YINLA",
+      "https://github.com/YINLA-TEAM/yinla-bot-website",
+      ...[3, 4, 5, 6].map(
+        (id) => `https://github.com/YINLA-TEAM/YINLA/pull/${id}`,
+      ),
+    ])
+      expect(html).toContain(`href="${href}"`);
+    expect(html).not.toMatch(
+      /<img|<video|<iframe|<svg|CASE_STUDY_|synthetic fixture|CPBL-BOT/,
+    );
+    const source = await fs.readFile(
+      "src/contents/case-studies/yinla-bot.mdx",
+      "utf8",
+    );
+    expect(source).not.toMatch(/^---|!\[|\/Users\/|\/home\//);
+    const metadata = await articleMetadata({
+      params: Promise.resolve({ slug: yinla.slug }),
+    });
+    expect(metadata.title).toBe(
+      "YINLA｜從 Replit 的 main.py，到整合臺灣資訊的 Discord Bot",
+    );
+    expect(metadata.description).toBe(
+      `${yinla.summary} 如果要說 YINLA 是怎麼誕生的，其實一開始真的沒有想那麼多。`,
+    );
+    expect(metadata.alternates?.canonical).toBe(
+      "https://yincheng.app/projects/yinla-bot/case-study",
+    );
+    expect(metadata.openGraph).toMatchObject({
+      type: "article",
+      title: article.title,
+      description: article.description,
+      url: `https://yincheng.app${article.href}`,
+      images: [
+        {
+          url: "https://yincheng.app/projects/yinla-bot/og",
+          width: 1200,
+          height: 630,
+          alt: "YINLA",
+        },
+      ],
+    });
+    expect(metadata.twitter).toMatchObject({
+      card: "summary_large_image",
+      title: article.title,
+      description: article.description,
+      images: ["https://yincheng.app/projects/yinla-bot/og"],
+    });
+    expect(
+      renderToStaticMarkup(
+        await CaseStudyPage({ params: Promise.resolve({ slug: yinla.slug }) }),
+      ),
+    ).toContain('href="/projects/yinla-bot"');
+  });
+
+  test("each missing or invalid article fails closed without disabling the other three", async () => {
     const originalRead = fs.readFile;
     for (const project of approved) {
       const others = approved.filter((item) => item !== project);
@@ -307,6 +397,16 @@ describe("trusted Case Study infrastructure", () => {
         "../quotamew",
         "../dpip",
         "../personai-api",
+        "../yinla-bot",
+        "yinla-bot.mdx",
+        "yinla-bot?preview=true",
+        "yinla-bot-website",
+        "YINLA",
+        {
+          id: "yinla-bot",
+          approval: "approved",
+          publicationStatus: "published",
+        },
         "personai-api.mdx",
         "personai",
         "personai-api?preview=true",
@@ -507,25 +607,39 @@ describe("trusted Case Study infrastructure", () => {
           })
         ).openGraph,
       ).toMatchObject({ type: "article" });
+      const yinlaPage = await CaseStudyPage({
+        params: Promise.resolve({ slug: yinla.slug }),
+      });
+      expect(renderToStaticMarkup(yinlaPage)).toContain(
+        "雖然專案是開源的，但目前沒有其他固定的程式協作者。",
+      );
+      expect(
+        (
+          await articleMetadata({
+            params: Promise.resolve({ slug: yinla.slug }),
+          })
+        ).openGraph,
+      ).toMatchObject({ type: "article" });
       expect(fetch).not.toHaveBeenCalled();
     } finally {
       fetch.mockRestore();
     }
   });
 
-  test("publishes only DPIP, PersonAI and QuotaMew and preserves project metadata", async () => {
+  test("publishes only DPIP, PersonAI, QuotaMew and YINLA and preserves project metadata", async () => {
     const urls = (await sitemap()).map(({ url }) => url);
     expect(urls.filter((url) => /\/projects\/[^/]+$/.test(url))).toHaveLength(
       6,
     );
     expect(urls.filter((url) => url.includes("/case-study"))).toEqual([
       "https://yincheng.app/projects/dpip/case-study",
+      "https://yincheng.app/projects/yinla-bot/case-study",
       "https://yincheng.app/projects/personai-api/case-study",
       "https://yincheng.app/projects/quotamew/case-study",
     ]);
     expect(
       (await getPublicCaseStudies()).map(({ project }) => project.id),
-    ).toEqual(["dpip", "personai-api", "quotamew"]);
+    ).toEqual(["dpip", "yinla-bot", "personai-api", "quotamew"]);
     for (const project of projectV2s) {
       if (!approved.includes(project)) {
         expect(await getPublicCaseStudy(project.id)).toBeNull();
