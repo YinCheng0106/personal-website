@@ -20,22 +20,25 @@ const navItems = [
 export default function AppHeader() {
   return (
     <div
-      className={`sticky top-0 z-40 flex items-center justify-between p-8 backdrop-blur-sm select-none`}
+      className={`sticky top-0 z-40 flex items-center justify-between gap-2 px-4 py-8 backdrop-blur-sm select-none min-[375px]:px-8 [&_a:focus-visible]:outline-2 [&_a:focus-visible]:outline-offset-4`}
     >
-      <Link href="/">
+      <Link href="/" aria-label="YinCheng 首頁" className="shrink-0">
         <h1
-          className={`${playfairDisplay.className} fixed top-8 left-8 hidden text-2xl font-bold md:block`}
+          className={`${playfairDisplay.className} hidden text-2xl font-bold md:block`}
         >
           YinCheng
         </h1>
         <h1
-          className={`${playfairDisplay.className} fixed top-8 left-8 block text-2xl font-bold md:hidden`}
+          className={`${playfairDisplay.className} block text-2xl font-bold md:hidden`}
         >
           YC
         </h1>
       </Link>
-      <div className="flex items-center justify-around gap-4">
-        <nav className="hidden gap-4 md:flex">
+      <nav
+        aria-label="主要導覽"
+        className="flex shrink-0 items-center gap-2 min-[375px]:gap-4"
+      >
+        <div className="hidden gap-4 md:flex">
           {navItems.map((item) => (
             <Link
               key={item.href}
@@ -45,11 +48,12 @@ export default function AppHeader() {
               {item.label}
             </Link>
           ))}
-        </nav>
+        </div>
         <Tooltip>
-          <TooltipTrigger className="md:hidden">
+          <TooltipTrigger asChild>
             <Link
               href="/projects"
+              aria-label="專案"
               className="link block md:hidden"
               target="_self"
             >
@@ -63,16 +67,26 @@ export default function AppHeader() {
           <TooltipContent>專案</TooltipContent>
         </Tooltip>
         <Tooltip>
-          <TooltipTrigger className="md:hidden">
-            <Link href="/blog" className="link block md:hidden" target="_self">
+          <TooltipTrigger asChild>
+            <Link
+              href="/blog"
+              aria-label="部落格"
+              className="link block md:hidden"
+              target="_self"
+            >
               <Icon icon="ri:article-line" className="block" width={24} />
             </Link>
           </TooltipTrigger>
           <TooltipContent>部落格</TooltipContent>
         </Tooltip>
         <Tooltip>
-          <TooltipTrigger className="md:hidden">
-            <Link href="/about" className="link block md:hidden" target="_self">
+          <TooltipTrigger asChild>
+            <Link
+              href="/about"
+              aria-label="關於我"
+              className="link block md:hidden"
+              target="_self"
+            >
               <Icon icon="ri:information-line" className="block" width={24} />
             </Link>
           </TooltipTrigger>
@@ -82,6 +96,7 @@ export default function AppHeader() {
         <Link
           className="link"
           href="https://www.threads.com/@_yincheng_"
+          aria-label="Threads"
           target="_blank"
         >
           <Icon icon="ri:threads-line" className="block" width={24} />
@@ -89,6 +104,7 @@ export default function AppHeader() {
         <Link
           className="link"
           href="https://www.instagram.com/_yincheng_"
+          aria-label="Instagram"
           target="_blank"
         >
           <Icon icon="ri:instagram-line" className="block" width={24} />
@@ -96,12 +112,13 @@ export default function AppHeader() {
         <Link
           className="link"
           href="https://github.com/YinCheng0106"
+          aria-label="GitHub"
           target="_blank"
         >
           <Icon icon="ri:github-line" className="block" width={24} />
         </Link>
         <ModeToggle />
-      </div>
+      </nav>
     </div>
   );
 }
