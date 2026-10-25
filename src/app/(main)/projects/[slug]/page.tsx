@@ -103,10 +103,10 @@ export default async function ProjectPage({ params }: Props) {
           </div>
         </div>
 
-        <div className="flex flex-col md:items-end mt-2 md:mt-0">
+        <div className="min-w-0 flex flex-col md:items-end mt-2 md:mt-0">
           {/* GitHub Stats */}
-          <div className="flex md:flex-col justify-between md:items-end">
-            <div className="flex items-center gap-4">
+          <div className="flex min-w-0 flex-wrap justify-between gap-x-4 gap-y-2 md:flex-col md:items-end">
+            <div className="flex flex-wrap items-center gap-4">
               {githubStats?.stars !== undefined && (
                 <div className="text-muted-foreground flex items-center gap-1">
                   <Icon icon="mdi:star-outline" />
@@ -127,26 +127,28 @@ export default async function ProjectPage({ params }: Props) {
               )}
             </div>
             {/* GitHub License */}
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2 md:justify-end">
               {project.repositories?.map((repository) => (
                 <Link
                   key={repository.repository}
                   href={`https://github.com/${repository.repository}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="link flex items-center gap-1"
+                  className="link flex min-w-0 max-w-full items-center gap-1"
                 >
-                  <Icon icon="ri:github-line" />
-                  {project.repositories?.length === 1
-                    ? "GitHub"
-                    : repository.repository}
+                  <Icon icon="ri:github-line" className="shrink-0" />
+                  <span className="min-w-0 [overflow-wrap:anywhere]">
+                    {project.repositories?.length === 1
+                      ? "GitHub"
+                      : repository.repository}
+                  </span>
                   {repository.isPrimary && (
-                    <span className="text-muted-foreground text-xs">主要</span>
+                    <span className="text-muted-foreground shrink-0 text-xs">主要</span>
                   )}
                 </Link>
               ))}
               {githubStats?.license?.name && (
-                <div className="text-muted-foreground flex items-center gap-1">
+                <div className="text-muted-foreground flex min-w-0 max-w-full items-center gap-1">
                   <Link
                     href={
                       `https://choosealicense.com/licenses/${githubStats.license.key}` ||
@@ -154,10 +156,12 @@ export default async function ProjectPage({ params }: Props) {
                     }
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="link flex items-center gap-1"
+                    className="link flex min-w-0 items-center gap-1"
                   >
-                    <Icon icon="mdi:scale-balance" />
-                    {githubStats.license.spdx_id}
+                    <Icon icon="mdi:scale-balance" className="shrink-0" />
+                    <span className="min-w-0 [overflow-wrap:anywhere]">
+                      {githubStats.license.spdx_id}
+                    </span>
                   </Link>
                 </div>
               )}
@@ -190,7 +194,7 @@ export default async function ProjectPage({ params }: Props) {
 
       <main className="mt-8 grid w-full gap-8 md:grid-cols-4">
         <div className="min-w-0 md:col-span-3">
-          <div className="prose dark:prose-invert prose-pre:bg-transparent prose-code:before:content-none prose-code:after:content-none max-w-none">
+          <div className="prose dark:prose-invert prose-pre:bg-transparent prose-code:before:content-none prose-code:after:content-none max-w-none [&_:not(pre)>code]:[overflow-wrap:anywhere]">
             {project.repositories?.length ? (
               <GitHubReadmeView readme={githubStats?.readme} />
             ) : (
@@ -200,7 +204,7 @@ export default async function ProjectPage({ params }: Props) {
             )}
           </div>
         </div>
-        <div className="divide-accent mb-auto grid grid-cols-1 divide-y md:col-span-1">
+        <div className="divide-accent mb-auto grid min-w-0 grid-cols-1 divide-y md:col-span-1">
           <div className="flex flex-col gap-2 py-4">
             <h2 className="text-lg font-semibold">簡介</h2>
             <div className="mt-2 flex flex-wrap gap-2">
@@ -296,7 +300,7 @@ export default async function ProjectPage({ params }: Props) {
                   href={contributor.html_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="link-accent flex items-center gap-2"
+                  className="link-accent flex min-w-0 max-w-full flex-wrap items-center gap-2"
                 >
                   <Image
                     src={contributor.avatar_url}
@@ -305,11 +309,13 @@ export default async function ProjectPage({ params }: Props) {
                     height={32}
                     className={
                       contributor.type === "User"
-                        ? "rounded-full"
-                        : "rounded-sm"
+                        ? "shrink-0 rounded-full"
+                        : "shrink-0 rounded-sm"
                     }
                   />
-                  <span className="font-bold">{contributor.login}</span>
+                  <span className="min-w-0 max-w-full font-bold [overflow-wrap:anywhere]">
+                    {contributor.login}
+                  </span>
                   {contributor.type === "User" ? (
                     <Badge variant="secondary">User</Badge>
                   ) : null}

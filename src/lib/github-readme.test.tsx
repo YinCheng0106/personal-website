@@ -139,6 +139,34 @@ Read the [setup guide](docs/setup.md).
     expect(html).toContain('<code class="language-ts">');
   });
 
+  test("keeps table semantics, alignment, links and code inside a named keyboard scroll region", () => {
+    const html = render(makeReadme(`| Variable | Default |
+| :--- | ---: |
+| \`VERY_LONG_ENVIRONMENT_VARIABLE_NAME\` | [setup](docs/setup.md) |`));
+
+    expect(html).toContain('role="region"');
+    expect(html).toContain('aria-label="README 表格，可水平捲動"');
+    expect(html).toContain('tabindex="0"');
+    expect(html).toContain("overflow-x-auto");
+    expect(html).toContain("focus-visible:outline-2");
+    expect(html).toContain("<table><thead><tr>");
+    expect(html).toContain('<th style="text-align:left">Variable</th>');
+    expect(html).toContain('<td style="text-align:right"><a href="https://github.com/YINLA-TEAM/YINLA/blob/main/docs/setup.md">setup</a></td>');
+    expect(html).toContain("<code>VERY_LONG_ENVIRONMENT_VARIABLE_NAME</code>");
+    expect(html).toContain("</tbody></table></div>");
+  });
+
+  test("preserves exact inline paths and fenced code whitespace without inserted break characters", () => {
+    const inline = "src/data/weatherAlertSummaries.json";
+    const block = `  const path = "${inline}";\n\tconsole.log(path);\n`;
+    const html = render(makeReadme(`Use \`${inline}\`.\n\n\`\`\`ts\n${block}\`\`\``));
+
+    expect(html).toContain(`<code>${inline}</code>`);
+    expect(html).toContain(`<pre><code class="language-ts">${block.replaceAll('"', "&quot;")}</code></pre>`);
+    expect(html).not.toMatch(/<wbr|\u200b|\u00ad/);
+    expect(html).not.toContain('role="region"');
+  });
+
   test.each([
     {
       name: "YINLA",

@@ -16,6 +16,16 @@ type GitHubReadmeViewProps = {
 };
 
 const components: Components = {
+  table: ({ children }) => (
+    <div
+      role="region"
+      aria-label="README 表格，可水平捲動"
+      tabIndex={0}
+      className="max-w-full overflow-x-auto focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+    >
+      <table>{children}</table>
+    </div>
+  ),
   a: ({ href, children }) =>
     href ? <a href={href}>{children}</a> : <>{children}</>,
   img: ({ src, alt }) =>
