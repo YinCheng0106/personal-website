@@ -34,7 +34,7 @@ export const metadata: Metadata = {
 export default function ProjectsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
-      <SectionTitle title="專案" subtitle="我做的所有專案都在這裡展示" />
+      <SectionTitle as="h1" title="專案" subtitle="我做的所有專案都在這裡展示" />
       {projects.length === 0 ? (
         <p className="text-muted-foreground justify-center text-center">
           目前沒有任何專案，請稍後再回來看看！
@@ -43,6 +43,7 @@ export default function ProjectsPage() {
         <div className="grid gap-4 md:grid-cols-2">
           {[...projects].sort((a, b) => a.title.localeCompare(b.title)).map((project) => (
             <ProjectBlock
+              headingAs="h2"
               key={project.slug}
               type={project.presentation.type}
               logo={project.media?.logo}

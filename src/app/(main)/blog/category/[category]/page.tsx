@@ -59,6 +59,7 @@ export default async function CategoryPage({ params }: Props) {
   return (
     <div className="container mx-auto px-4 py-8">
       <SectionTitle
+        as="h1"
         title={name}
         subtitle={`分類 · 共 ${posts.length} 篇文章`}
       />

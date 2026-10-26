@@ -13,9 +13,17 @@ type Props = {
   title: string;
   description: string;
   link: string;
+  headingAs?: "h2" | "h3";
 };
 
-export function ProjectBlock({ type, logo, title, description, link }: Props) {
+export function ProjectBlock({
+  type,
+  logo,
+  title,
+  description,
+  link,
+  headingAs: Heading = "h3",
+}: Props) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }}
@@ -56,9 +64,9 @@ export function ProjectBlock({ type, logo, title, description, link }: Props) {
 
           <div className="flex-1 space-y-1">
             <div className="flex items-center gap-2">
-              <h3 className="text-muted-foreground group-hover:text-foreground text-lg font-semibold transition-colors duration-150">
+              <Heading className="text-muted-foreground group-hover:text-foreground text-lg font-semibold transition-colors duration-150">
                 {title}
-              </h3>
+              </Heading>
               <Badge
                 variant="secondary"
                 className="text-muted-foreground group-hover:text-foreground text-xs transition-colors duration-150"

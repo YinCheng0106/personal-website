@@ -39,14 +39,10 @@ function Heading({
 export function MDXComponents(components: MDXComponents): MDXComponents {
   return {
     h1: ({ id, children }) => (
-      <Heading
-        as="h1"
-        id={id}
-        anchor={false}
-        className="my-4 text-4xl font-bold"
-      >
+      // The article header owns the page H1; retain the MDX display title.
+      <p id={id} className="group my-4 text-4xl font-bold">
         {children}
-      </Heading>
+      </p>
     ),
     h2: ({ id, children }) => (
       <Heading as="h2" id={id} className="my-4 text-3xl font-bold">

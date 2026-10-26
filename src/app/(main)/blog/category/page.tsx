@@ -42,7 +42,7 @@ export default function CategoriesPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <SectionTitle title="分類" subtitle={`共 ${categories.length} 個分類`} />
+      <SectionTitle as="h1" title="分類" subtitle={`共 ${categories.length} 個分類`} />
 
       {categories.length === 0 ? (
         <p className="text-muted-foreground justify-center text-center">

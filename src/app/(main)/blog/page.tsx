@@ -37,7 +37,7 @@ export default function BlogPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <SectionTitle title="部落格" subtitle="文章都在這" />
+      <SectionTitle as="h1" title="部落格" subtitle="文章都在這" />
 
       <div className="mb-8 flex justify-center gap-4 text-sm">
         <Link href="/blog/category" className="link font-bold">

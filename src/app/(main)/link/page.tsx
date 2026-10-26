@@ -47,9 +47,9 @@ export default function LinkPage() {
             onHover="slowDown"
           />
         </div>
-        <h2 className={`text-4xl font-bold ${notoSerifTC.className}`}>
+        <h1 className={`text-4xl font-bold ${notoSerifTC.className}`}>
           YinCheng
-        </h2>
+        </h1>
       </motion.div>
       <div className="flex w-full flex-col items-center">
         {links.map((link) => (
