@@ -79,7 +79,24 @@ test("does not discard later H1s even if they match the article title", async ()
     "# Article title\n\n## Intro\n\n# Article title",
   );
   expect(html).toMatch(/<h2 id="article-title-1"/);
-  expect(html).toMatch(/<h3 id="intro"/);
+  expect(html).toMatch(/<h2 id="intro"/);
+});
+
+test("retains preamble sections under the canonical title before independent H1 sections", async () => {
+  for (const prefix of [
+    "",
+    "# Article title\n\n",
+    "# {frontmatter.title}\n\n",
+  ]) {
+    const { html, headings } = await render(
+      `${prefix}## Intro\n\n### Context\n\n# Topic\n\n## Detail`,
+    );
+    expect(html).toMatch(/<h2 id="intro"/);
+    expect(html).toMatch(/<h3 id="context"/);
+    expect(html).toMatch(/<h2 id="topic"/);
+    expect(html).toMatch(/<h3 id="detail"/);
+    expect(headings.map(({ depth }) => depth)).toEqual([2, 3, 2, 3]);
+  }
 });
 
 test("retains static heading text around expressions without enabling JavaScript", async () => {

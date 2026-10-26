@@ -45,7 +45,9 @@ export function rehypeBlogHeadings({
       first.tagName = "p";
       first.properties.dataArticleTitle = true;
     }
-    embedHeadings(tree);
+    // Initial H2/H3 sections already belong to the canonical article title.
+    // Only independent H1 sections and their descendants need the offset.
+    embedHeadings(tree, { preservePreamble: true });
     // Build the TOC from the same slugged, embedded tree that will be rendered.
     // This also includes meaningful H1 sections now rendered as H2.
     for (const heading of headingElements(tree)) {
