@@ -4,12 +4,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { MDXRemote } from "next-mdx-remote/rsc";
+import { compileMDX } from "next-mdx-remote/rsc";
 import { Icon } from "@iconify-icon/react";
 
 import { notoSerifTC } from "@/app/fonts";
 import {
-  extractHeadings,
+  type Heading,
   getAdjacentPosts,
   getAllPostsMeta,
   getPostBySlug,
@@ -17,6 +17,7 @@ import {
   getRelatedPosts,
 } from "@/lib/posts";
 import { siteConfig } from "@/lib/site";
+import { rehypeBlogHeadings } from "@/lib/rehype-blog-headings";
 
 import { MDXComponents } from "@/components/mdx/mdx-components";
 import { Badge } from "@/components/ui/badge";
@@ -92,7 +93,20 @@ export default async function PostPage({ params }: Props) {
     return notFound();
   }
 
-  const headings = extractHeadings(post.content);
+  const headings: Heading[] = [];
+  const { content } = await compileMDX({
+    source: post.content,
+    components: MDXComponents(),
+    options: {
+      mdxOptions: {
+        remarkPlugins: [remarkGfm],
+        rehypePlugins: [
+          rehypeSlug,
+          [rehypeBlogHeadings, { title: post.title, headings }],
+        ],
+      },
+    },
+  });
   const { newer, older } = getAdjacentPosts(slug);
   const related = getRelatedPosts(slug);
   const seriesPosts = post.series ? getPostsBySeries(post.series) : [];
@@ -235,16 +249,7 @@ export default async function PostPage({ params }: Props) {
             <section
               className={`prose md:prose-lg prose-pre:bg-accent prose-table:table-auto prose-code:before:content-none prose-code:after:content-none dark:prose-invert max-w-dvw`}
             >
-              <MDXRemote
-                source={post.content}
-                components={MDXComponents({})}
-                options={{
-                  mdxOptions: {
-                    remarkPlugins: [remarkGfm],
-                    rehypePlugins: [rehypeSlug],
-                  },
-                }}
-              />
+              {content}
             </section>
 
             <PostNav newer={newer} older={older} />

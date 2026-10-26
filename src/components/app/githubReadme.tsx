@@ -2,7 +2,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import type { ReactElement } from "react";
-import type { Root, Element } from "hast";
+import type { Root } from "hast";
+import { embedHeadings } from "@/lib/embedded-headings";
 
 import {
   decodeGitHubReadme,
@@ -37,27 +38,24 @@ const components: Components = {
     ) : null,
 };
 
-// The project title owns the page H1. Transform the Markdown tree before
-// rendering, retaining the original title typography and rehype-slug anchors.
+// Match this renderer's `prose` typography using the original heading rank.
+// The semantic offset must not change the visual size of README sections.
+const headingClasses = {
+  h1: "mt-0 mb-[0.888889em] text-[2.25em] leading-[1.11111] font-extrabold",
+  h2: "mt-[2em] mb-[1em] text-[1.5em] leading-[1.3333333] font-bold",
+  h3: "mt-[1.6em] mb-[0.6em] text-[1.25em] leading-[1.6] font-semibold",
+  h4: "mt-[1.5em] mb-[0.5em] text-[1em] leading-[1.5] font-semibold",
+  h5: "m-0 text-[1em] leading-[inherit] font-normal",
+  h6: "m-0 text-[1em] leading-[inherit] font-normal",
+};
+
 function rehypeEmbeddedHeadings() {
   return (tree: Root) => {
-    function visit(node: Root | Element) {
-      for (const child of node.children) {
-        if (child.type !== "element") continue;
-        if (child.tagName === "h1") {
-          child.tagName = "h2";
-          child.properties.className = [
-            "mt-0",
-            "mb-[0.888889em]",
-            "text-[2.25em]",
-            "leading-[1.11111]",
-            "font-extrabold",
-          ];
-        }
-        visit(child);
-      }
+    for (const heading of embedHeadings(tree)) {
+      const original = heading.properties
+        .dataOriginalHeading as keyof typeof headingClasses;
+      heading.properties.className = headingClasses[original].split(" ");
     }
-    visit(tree);
   };
 }
 
