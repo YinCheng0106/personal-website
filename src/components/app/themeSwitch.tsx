@@ -16,7 +16,10 @@ export function ModeToggle() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <div className="link relative flex h-8 w-8 cursor-pointer items-center justify-center">
+        <button
+          type="button"
+          className="link relative flex h-8 w-8 cursor-pointer items-center justify-center focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+        >
           <Sun
             size={24}
             className="scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90"
@@ -26,7 +29,7 @@ export function ModeToggle() {
             className="absolute scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0"
           />
           <span className="sr-only">切換主題</span>
-        </div>
+        </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => setTheme("light")}>
