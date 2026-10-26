@@ -7,23 +7,40 @@ import { CodeBlock } from "@/components/mdx/code-block";
 
 type HeadingTag = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 
+const headingClasses: Record<HeadingTag, string> = {
+  h1: "my-4 text-4xl font-bold",
+  h2: "my-4 text-3xl font-bold",
+  h3: "my-4 text-2xl font-bold",
+  h4: "my-4 text-xl font-bold",
+  h5: "my-4 text-lg font-bold",
+  h6: "my-4 text-base font-bold",
+};
+
 function Heading({
   as: Tag,
   className,
   id,
   children,
   anchor = true,
+  "data-original-heading": original,
+  "aria-level": ariaLevel,
 }: {
   as: HeadingTag;
   className: string;
   id?: string;
   children?: React.ReactNode;
   anchor?: boolean;
+  "data-original-heading"?: HeadingTag;
+  "aria-level"?: number;
 }) {
   return (
-    <Tag id={id} className={`group ${className}`}>
+    <Tag
+      id={id}
+      aria-level={ariaLevel}
+      className={`group ${original ? headingClasses[original] : className}`}
+    >
       {children}
-      {anchor && id ? (
+      {(original ? Number(original[1]) <= 4 : anchor) && id ? (
         <a
           href={`#${id}`}
           aria-label="連結到此段落"
@@ -36,54 +53,62 @@ function Heading({
   );
 }
 
-export function MDXComponents(components: MDXComponents): MDXComponents {
+export function MDXComponents(): MDXComponents {
   return {
-    h1: ({ id, children }) => (
-      <Heading
-        as="h1"
-        id={id}
-        anchor={false}
-        className="my-4 text-4xl font-bold"
-      >
+    h1: ({ id, children, ...props }) => (
+      <Heading as="h1" id={id} className={headingClasses.h1} {...props}>
         {children}
       </Heading>
     ),
-    h2: ({ id, children }) => (
-      <Heading as="h2" id={id} className="my-4 text-3xl font-bold">
+    h2: ({ id, children, ...props }) => (
+      <Heading as="h2" id={id} className={headingClasses.h2} {...props}>
         {children}
       </Heading>
     ),
-    h3: ({ id, children }) => (
-      <Heading as="h3" id={id} className="my-4 text-2xl font-bold">
+    h3: ({ id, children, ...props }) => (
+      <Heading as="h3" id={id} className={headingClasses.h3} {...props}>
         {children}
       </Heading>
     ),
-    h4: ({ id, children }) => (
-      <Heading as="h4" id={id} className="my-4 text-xl font-bold">
+    h4: ({ id, children, ...props }) => (
+      <Heading as="h4" id={id} className={headingClasses.h4} {...props}>
         {children}
       </Heading>
     ),
-    h5: ({ id, children }) => (
+    h5: ({ id, children, ...props }) => (
       <Heading
         as="h5"
         id={id}
         anchor={false}
         className="my-4 text-lg font-bold"
+        {...props}
       >
         {children}
       </Heading>
     ),
-    h6: ({ id, children }) => (
+    h6: ({ id, children, ...props }) => (
       <Heading
         as="h6"
         id={id}
         anchor={false}
         className="my-4 text-base font-bold"
+        {...props}
       >
         {children}
       </Heading>
     ),
-    p: ({ children }) => <p className="my-2 leading-7">{children}</p>,
+    p: ({ children, id, ...props }) => (
+      <p
+        id={id}
+        className={
+          "data-article-title" in props
+            ? "group my-4 text-4xl font-bold"
+            : "my-2 leading-7"
+        }
+      >
+        {children}
+      </p>
+    ),
     a: ({ href, children }) => (
       <Link
         className="text-primary/50 hover:text-primary transform no-underline transition-colors duration-200"

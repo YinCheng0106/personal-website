@@ -31,6 +31,44 @@ function render(readme: unknown): string | null {
 }
 
 describe("GitHub README rendering", () => {
+  test("embeds README titles below the project H1 without changing anchors or text", () => {
+    const html = render(makeReadme("# Project title\n\n## Features\n\n### Details"));
+    expect(html).not.toMatch(/<h1\b/);
+    expect(html).toMatch(/<h2 id="project-title"[^>]*>Project title<\/h2>/);
+    expect(html).toContain('<h3 id="features"');
+    expect(html).toContain('<h4 id="details"');
+  });
+
+  test("retains local links and duplicate heading slugs after embedding titles", () => {
+    const html = render(makeReadme(
+      "# Setup\n\n[Title](#setup) · [Section](#setup-1)\n\n## Setup\n\n### Details\n\n# Setup",
+    ));
+    expect(html).toMatch(/<h2 id="setup"[^>]*>Setup<\/h2>/);
+    expect(html).toContain('<h3 id="setup-1"');
+    expect(html).toMatch(/<h2 id="setup-2"[^>]*>Setup<\/h2>/);
+    expect(html).toContain('href="#setup"');
+    expect(html).toContain('href="#setup-1"');
+    expect(html).toContain('<h4 id="details"');
+    expect(html).not.toMatch(/<h1\b/);
+  });
+
+  test("leaves H2-first README hierarchies and heading-free content unchanged", () => {
+    const html = render(makeReadme("## Setup\n\n### Details"));
+    expect(html).toContain('<h2 id="setup">Setup</h2>');
+    expect(html).toContain('<h3 id="details">Details</h3>');
+    expect(html).not.toContain("data-original-heading");
+    expect(render(makeReadme("Plain **README** text."))).toBe("<p>Plain <strong>README</strong> text.</p>");
+  });
+
+  test("preserves all levels under multiple H1 sections and the native heading limit", () => {
+    const html = render(makeReadme("# First\n\n## Child\n\n### Detail\n\n# Second\n\n## Child\n\n##### Fifth\n\n###### Sixth"));
+    for (const [tag, id] of [["h2", "first"], ["h3", "child"], ["h4", "detail"], ["h2", "second"], ["h3", "child-1"], ["h6", "fifth"]]) {
+      expect(html).toContain(`<${tag} id="${id}"`);
+    }
+    expect(html).toMatch(/<h6 id="sixth"[^>]*aria-level="7"/);
+    expect(html).not.toMatch(/<h1\b/);
+  });
+
   test("keeps MDX expressions inert and strips executable HTML payloads", () => {
     const html = render(makeReadme(`
 # External Markdown
@@ -72,7 +110,7 @@ describe("GitHub README rendering", () => {
       makeReadme(`<!-- YINLA README build note -->\n\n# YINLA Bot\n\nA Discord bot.`),
     );
 
-    expect(html).toContain('<h1 id="yinla-bot">YINLA Bot</h1>');
+    expect(html).toMatch(/<h2 id="yinla-bot"[^>]*>YINLA Bot<\/h2>/);
     expect(html).toContain("A Discord bot.");
     expect(html).not.toContain("YINLA README build note");
     expect(
@@ -116,7 +154,7 @@ Read the [setup guide](docs/setup.md).
     const html = render(readme);
 
     expect(readme).not.toBeNull();
-    expect(html).toContain('<h1 id="yinla-bot">YINLA Bot</h1>');
+    expect(html).toMatch(/<h2 id="yinla-bot"[^>]*>YINLA Bot<\/h2>/);
     expect(html).toContain("<table>");
     expect(html).toContain(
       'href="https://github.com/YINLA-TEAM/YINLA/blob/main/docs/setup.md"',

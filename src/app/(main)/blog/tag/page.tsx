@@ -37,7 +37,7 @@ export default function TagsPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <SectionTitle title="標籤" subtitle={`共 ${tags.length} 個標籤`} />
+      <SectionTitle as="h1" title="標籤" subtitle={`共 ${tags.length} 個標籤`} />
 
       {tags.length === 0 ? (
         <p className="text-muted-foreground justify-center text-center">
