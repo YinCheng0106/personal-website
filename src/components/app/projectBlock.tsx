@@ -74,7 +74,7 @@ export function ProjectBlock({
                 {type}
               </Badge>
             </div>
-            <p className="text-muted-foreground/50 group-hover:text-foreground line-clamp-1 text-sm transition-colors duration-150">
+            <p className="text-muted-foreground group-hover:text-foreground line-clamp-1 text-sm transition-colors duration-150">
               {description}
             </p>
           </div>
