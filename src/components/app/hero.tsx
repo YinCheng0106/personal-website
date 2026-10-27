@@ -100,9 +100,7 @@ export function Hero() {
 
         <div className="flex h-20 items-center justify-center">
           <p className="text-muted-foreground font-mono text-xl sm:text-2xl">
-            <span className="dark:text-accent text-neutral-400">
-              {displayText}
-            </span>
+            <span>{displayText}</span>
             <motion.span
               animate={{ opacity: [1, 0] }}
               transition={{ duration: 0.5, repeat: Infinity }}
