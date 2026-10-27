@@ -147,8 +147,9 @@ export function Hero() {
             });
           }}
         >
-          <Link href="#projects">
+          <Link href="#projects" aria-label="前往我的專案">
             <Icon
+              aria-hidden="true"
               icon="mdi:chevron-down"
               width={32}
               className="text-muted-foreground drop-shadow-lg"

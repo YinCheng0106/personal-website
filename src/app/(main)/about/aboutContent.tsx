@@ -212,11 +212,14 @@ export function AboutContent() {
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     href={link.href}
+                    aria-label={link.label}
+                    // The tooltip repeats the name, so avoid a duplicate description.
+                    aria-describedby={undefined}
                     rel="noopener noreferrer"
                     target="_blank"
                     className="text-2xl link"
                   >
-                    <Icon icon={link.icon} size={64}/>
+                    <Icon icon={link.icon} size={64} aria-hidden="true"/>
                   </motion.a>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">{link.label}</TooltipContent>
