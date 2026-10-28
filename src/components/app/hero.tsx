@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
@@ -30,33 +30,30 @@ const slogans_light = [
   "但我一休息就半天過去了:)",
 ];
 
-export function Hero() {
+// Motion 12.23.24 snapshots this preference in useState without subscribing
+// React to later changes. Keep this subscription local to the Hero.
+const motionQuery = "(prefers-reduced-motion: reduce)";
+const staticSlogan = slogans[1];
+
+function subscribeToReducedMotion(onChange: () => void) {
+  const query = window.matchMedia(motionQuery);
+  query.addEventListener("change", onChange);
+  return () => query.removeEventListener("change", onChange);
+}
+
+function getReducedMotionSnapshot() {
+  return window.matchMedia(motionQuery).matches;
+}
+
+function getServerMotionSnapshot() {
+  return null;
+}
+
+function Typewriter() {
   const { theme } = useTheme();
-
-  const heroRef = useRef<HTMLDivElement>(null);
-
   const [sloganIndex, setSloganIndex] = useState(0);
   const [displayText, setDisplayText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
-  const [showArrow, setShowArrow] = useState(true);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        const isInView =
-          entry.isIntersecting || entry.boundingClientRect.bottom > 100;
-        setShowArrow(isInView);
-      },
-      {
-        root: null,
-        rootMargin: "0px -10px -100px 0px",
-        threshold: 0,
-      },
-    );
-
-    if (heroRef.current) observer.observe(heroRef.current);
-    return () => observer.disconnect();
-  }, []);
 
   useEffect(() => {
     const currentSlogan =
@@ -83,6 +80,38 @@ export function Hero() {
     return () => clearTimeout(timer);
   }, [displayText, isDeleting, sloganIndex, theme]);
 
+  return <>{displayText}</>;
+}
+
+export function Hero() {
+  const reducedMotion = useSyncExternalStore(
+    subscribeToReducedMotion,
+    getReducedMotionSnapshot,
+    getServerMotionSnapshot,
+  );
+
+  const heroRef = useRef<HTMLDivElement>(null);
+
+  const [showArrow, setShowArrow] = useState(true);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const isInView =
+          entry.isIntersecting || entry.boundingClientRect.bottom > 100;
+        setShowArrow(isInView);
+      },
+      {
+        root: null,
+        rootMargin: "0px -10px -100px 0px",
+        threshold: 0,
+      },
+    );
+
+    if (heroRef.current) observer.observe(heroRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 select-none">
       <div
@@ -92,19 +121,27 @@ export function Hero() {
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className={`${notoSerifTC.className} text-5xl font-bold sm:text-6xl md:text-7xl`}
+          transition={{ duration: reducedMotion === true ? 0 : 0.6 }}
+          className={`${notoSerifTC.className} text-5xl font-bold motion-reduce:!transform-none motion-reduce:!opacity-100 sm:text-6xl md:text-7xl`}
         >
           <span className="text-primary">YinCheng</span>
         </motion.h1>
 
         <div className="flex h-20 items-center justify-center">
           <p className="text-muted-foreground font-mono text-xl sm:text-2xl">
-            <span>{displayText}</span>
+            {/* CSS resolves the media query before hydration; both initial trees
+                match, and reduced motion never starts a hidden typewriter. */}
+            <span className="motion-safe:hidden">{staticSlogan}</span>
+            <span className="motion-reduce:hidden">
+              {reducedMotion === false && <Typewriter />}
+            </span>
             <motion.span
-              animate={{ opacity: [1, 0] }}
-              transition={{ duration: 0.5, repeat: Infinity }}
-              className="bg-accent ml-1 inline-block h-6 w-1"
+              animate={{ opacity: reducedMotion === false ? [1, 0] : 0 }}
+              transition={{
+                duration: reducedMotion === false ? 0.5 : 0,
+                repeat: reducedMotion === false ? Infinity : 0,
+              }}
+              className="bg-accent ml-1 inline-block h-6 w-1 motion-reduce:!opacity-0"
             />
           </p>
         </div>
@@ -112,8 +149,8 @@ export function Hero() {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className={`${notoSerifTC.className} text-muted-foreground mx-auto max-w-2xl text-lg`}
+          transition={reducedMotion === true ? { duration: 0 } : { delay: 0.3 }}
+          className={`${notoSerifTC.className} text-muted-foreground mx-auto max-w-2xl text-lg motion-reduce:!opacity-100`}
         >
           大學生・軟體開發・網頁開發
         </motion.p>
@@ -121,8 +158,8 @@ export function Hero() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="flex flex-col items-center justify-center gap-4 sm:flex-row"
+          transition={reducedMotion === true ? { duration: 0 } : { delay: 0.5 }}
+          className="flex flex-col items-center justify-center gap-4 motion-reduce:!transform-none motion-reduce:!opacity-100 sm:flex-row"
         >
           <Button size="lg" className="w-40" asChild>
             <Link href="#projects" scroll>
@@ -136,9 +173,12 @@ export function Hero() {
       </div>
       {showArrow && (
         <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-          className="pointer-events-auto fixed bottom-8 left-1/2 z-50 -translate-x-1/2 cursor-pointer md:bottom-12"
+          animate={{ y: reducedMotion === false ? [0, 10, 0] : 0 }}
+          transition={{
+            duration: reducedMotion === false ? 1.5 : 0,
+            repeat: reducedMotion === false ? Infinity : 0,
+          }}
+          className="pointer-events-auto fixed bottom-8 left-1/2 z-50 -translate-x-1/2 cursor-pointer motion-reduce:!transform-none md:bottom-12"
           onClick={() => {
             document.getElementById("project")?.scrollIntoView({
               behavior: "smooth",
