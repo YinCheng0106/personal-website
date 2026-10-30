@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useSyncExternalStore } from "react";
 import {
   motion,
   useAnimation,
@@ -35,6 +35,24 @@ const getTransition = (duration: number, from: number) => ({
   },
 });
 
+// Motion 12.23.24's useReducedMotion keeps only the initial React snapshot.
+// Subscribe locally, as in Hero, so live browser preference changes reach React.
+const motionQuery = "(prefers-reduced-motion: reduce)";
+
+function subscribeToReducedMotion(onChange: () => void) {
+  const query = window.matchMedia(motionQuery);
+  query.addEventListener("change", onChange);
+  return () => query.removeEventListener("change", onChange);
+}
+
+function getReducedMotionSnapshot() {
+  return window.matchMedia(motionQuery).matches;
+}
+
+function getServerMotionSnapshot() {
+  return null;
+}
+
 const CircularText: React.FC<CircularTextProps> = ({
   text,
   spinDuration = 20,
@@ -44,17 +62,37 @@ const CircularText: React.FC<CircularTextProps> = ({
   const letters = Array.from(text);
   const controls = useAnimation();
   const rotation: MotionValue<number> = useMotionValue(0);
+  const reducedMotion = useSyncExternalStore(
+    subscribeToReducedMotion,
+    getReducedMotionSnapshot,
+    getServerMotionSnapshot,
+  );
 
   useEffect(() => {
+    // Wait for the browser snapshot before starting any repeating animation.
+    if (reducedMotion !== false) {
+      controls.stop();
+      rotation.stop();
+      controls.set({ rotate: 0, scale: 1 });
+      return;
+    }
+
     const start = rotation.get();
     controls.start({
       rotate: start + 360,
       scale: 1,
       transition: getTransition(spinDuration, start),
     });
-  }, [spinDuration, text, onHover, controls]);
+    return () => {
+      controls.stop();
+      rotation.stop();
+    };
+  }, [spinDuration, text, onHover, controls, rotation, reducedMotion]);
 
   const handleHoverStart = () => {
+    // Check the media query too, covering an event before React's next render.
+    if (reducedMotion !== false || getReducedMotionSnapshot()) return;
+
     const start = rotation.get();
 
     if (!onHover) return;
@@ -91,6 +129,8 @@ const CircularText: React.FC<CircularTextProps> = ({
   };
 
   const handleHoverEnd = () => {
+    if (reducedMotion !== false || getReducedMotionSnapshot()) return;
+
     const start = rotation.get();
     controls.start({
       rotate: start + 360,
@@ -101,7 +141,7 @@ const CircularText: React.FC<CircularTextProps> = ({
 
   return (
     <motion.div
-      className={`relative mx-auto rounded-full text-center font-black text-white ${className}`}
+      className={`relative mx-auto rounded-full text-center font-black text-white motion-reduce:!transform-none ${className}`}
       style={{ rotate: rotation }}
       initial={{ rotate: 0 }}
       animate={controls}
