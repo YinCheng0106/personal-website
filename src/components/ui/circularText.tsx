@@ -1,4 +1,4 @@
-import React, { useEffect, useSyncExternalStore } from "react";
+import React, { useCallback, useEffect, useSyncExternalStore } from "react";
 import {
   motion,
   useAnimation,
@@ -39,10 +39,21 @@ const getTransition = (duration: number, from: number) => ({
 // Subscribe locally, as in Hero, so live browser preference changes reach React.
 const motionQuery = "(prefers-reduced-motion: reduce)";
 
-function subscribeToReducedMotion(onChange: () => void) {
+export function subscribeToReducedMotion(
+  onChange: () => void,
+  onReduce: () => void,
+) {
   const query = window.matchMedia(motionQuery);
-  query.addEventListener("change", onChange);
-  return () => query.removeEventListener("change", onChange);
+  const handleChange = () => {
+    // Cancel before notifying React; a passive effect can run too late.
+    // The browser may expose matches=true before dispatching this event.
+    if (query.matches) onReduce();
+    onChange();
+  };
+  query.addEventListener("change", handleChange);
+  // Cover a preference change between render and subscription.
+  if (query.matches) onReduce();
+  return () => query.removeEventListener("change", handleChange);
 }
 
 function getReducedMotionSnapshot() {
@@ -62,18 +73,25 @@ const CircularText: React.FC<CircularTextProps> = ({
   const letters = Array.from(text);
   const controls = useAnimation();
   const rotation: MotionValue<number> = useMotionValue(0);
+  const stopMotion = useCallback(() => {
+    controls.stop();
+    rotation.stop();
+    controls.set({ rotate: 0, scale: 1 });
+  }, [controls, rotation]);
+  const subscribe = useCallback(
+    (onChange: () => void) => subscribeToReducedMotion(onChange, stopMotion),
+    [stopMotion],
+  );
   const reducedMotion = useSyncExternalStore(
-    subscribeToReducedMotion,
+    subscribe,
     getReducedMotionSnapshot,
     getServerMotionSnapshot,
   );
 
   useEffect(() => {
     // Wait for the browser snapshot before starting any repeating animation.
-    if (reducedMotion !== false) {
-      controls.stop();
-      rotation.stop();
-      controls.set({ rotate: 0, scale: 1 });
+    if (reducedMotion !== false || getReducedMotionSnapshot()) {
+      stopMotion();
       return;
     }
 
@@ -87,7 +105,7 @@ const CircularText: React.FC<CircularTextProps> = ({
       controls.stop();
       rotation.stop();
     };
-  }, [spinDuration, text, onHover, controls, rotation, reducedMotion]);
+  }, [spinDuration, text, onHover, controls, rotation, reducedMotion, stopMotion]);
 
   const handleHoverStart = () => {
     // Check the media query too, covering an event before React's next render.
