@@ -133,7 +133,7 @@ html {
     @apply bg-transparent p-0;
   }
   .link {
-    @apply text-primary/50 hover:text-primary transform transition-colors duration-200;
+    @apply text-primary/70 hover:text-primary transform transition-colors duration-200;
   }
   .link-accent {
     @apply text-accent-foreground hover:text-accent transform transition-colors duration-200;

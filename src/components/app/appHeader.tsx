@@ -20,7 +20,7 @@ const navItems = [
 export default function AppHeader() {
   return (
     <div
-      className={`sticky top-0 z-40 flex items-center justify-between gap-2 px-4 py-8 backdrop-blur-sm select-none min-[375px]:px-8 [&_a:focus-visible]:outline-2 [&_a:focus-visible]:outline-offset-4`}
+      className={`bg-background/95 sticky top-0 z-40 flex items-center justify-between gap-2 px-4 py-8 backdrop-blur-sm select-none min-[375px]:px-8 [&_a:focus-visible]:outline-2 [&_a:focus-visible]:outline-offset-4`}
     >
       <Link href="/" aria-label="YinCheng 首頁" className="shrink-0">
         <span
