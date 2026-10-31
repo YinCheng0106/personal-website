@@ -28,7 +28,8 @@ export default function LinkPage() {
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         viewport={{ once: true }}
-        className="my-8 flex w-full flex-col items-center gap-4"
+        // Contain the rotating letter boxes; the visible ring fits inside this row.
+        className="my-8 flex w-full flex-col items-center gap-4 overflow-x-clip"
       >
         <div className="relative flex items-center justify-center">
           <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center">
